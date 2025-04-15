@@ -1,0 +1,65 @@
+.dashboard-container {
+  padding: 2rem;
+  
+  .filters {
+    margin-bottom: 2rem;
+    
+    select {
+      padding: 0.5rem;
+      border: 2px solid $secondary-color;
+      border-radius: 5px;
+      background: white;
+      color: $text-color;
+    }
+  }
+
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+
+    .project-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      
+      h3 {
+        color: $accent-color;
+        margin-bottom: 1rem;
+      }
+
+      .progress {
+        height: 20px;
+        background: $secondary-color;
+        border-radius: 10px;
+        margin: 1rem 0;
+        position: relative;
+
+        .progress-bar {
+          height: 100%;
+          background: $primary-color;
+          border-radius: 10px;
+          transition: width 0.5s ease;
+        }
+
+        span {
+          position: absolute;
+          right: 5px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: white;
+          font-weight: bold;
+        }
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+        margin: 1rem 0;
+        font-size: 0.9rem;
+      }
+    }
+  }
+}

@@ -1,32 +1,59 @@
-# CoCreando 🌱💡  
+# CoCreando
 
-**Plataforma de Inversiones Colombiana**  
+This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.6.
 
-Bienvenido a **CoCreando**, un ecosistema digital diseñado para conectar a inversionistas con proyectos innovadores en Colombia. Con esta plataforma, tanto inversionistas como emprendedores tienen acceso a una herramienta sencilla, confiable y transparente para generar crecimiento económico y social.  
+## Development server
 
----
+To start a local development server, run:
 
-## ⚡ Características Principales  
+```bash
+ng serve
+```
 
-✅ **Inversiones Directas**: Los inversionistas pueden apoyar proyectos colombianos de diferentes sectores, desde tecnología hasta sostenibilidad.  
-✅ **Interfaz Intuitiva**: Navega con facilidad a través de un diseño amigable y funcionalidades optimizadas.  
-✅ **Seguridad y Transparencia**: Todos los procesos están protegidos con altos estándares de seguridad y transparencia en cada transacción.  
-✅ **Comunicación Directa**: Inversionistas y emprendedores pueden comunicarse directamente, fomentando la confianza y el entendimiento mutuo.  
-✅ **Diversificación de Portafolio**: Los inversionistas pueden diversificar sus activos entre distintas oportunidades de inversión.  
+Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
 
----
+## Code scaffolding
 
-## 🛠 ¿Cómo Funciona?  
+Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
 
-1️⃣ **Registro de Usuario**: Los inversionistas y emprendedores se registran en la plataforma con un proceso sencillo y rápido.  
-2️⃣ **Explorar Proyectos**: Los inversionistas pueden explorar diferentes proyectos, evaluar su viabilidad y potencial de crecimiento.  
-3️⃣ **Inversiones Seguras**: Realiza inversiones de manera confiable a través de nuestra plataforma con seguimiento en tiempo real.  
-4️⃣ **Comunicación con Emprendedores**: Mantente en contacto constante con los creadores para conocer el progreso de tus inversiones.  
+```bash
+ng generate component component-name
+```
 
----
+For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
 
-## 🌍 Beneficios para Inversionistas  
+```bash
+ng generate --help
+```
 
-🔹 **Acceso Exclusivo a Proyectos Innovadores**: Descubre nuevas oportunidades en Colombia, apoyando el crecimiento de la economía local.  
-🔹 **Inversión Socialmente Responsable**: Apoya iniciativas que generan un impacto positivo en la comunidad.  
-🔹 **Control y Visibilidad**: Acceso a toda la información de tus inversiones, con métricas y datos actualizados.  
+## Building
+
+To build the project run:
+
+```bash
+ng build
+```
+
+This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+
+## Running unit tests
+
+To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+
+```bash
+ng test
+```
+
+## Running end-to-end tests
+
+For end-to-end (e2e) testing, run:
+
+```bash
+ng e2e
+```
+
+Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+
+## Additional Resources
+
+For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

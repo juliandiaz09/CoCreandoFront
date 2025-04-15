@@ -1,0 +1,45 @@
+<div class="creation-container">
+    <h2>Crear Nuevo Proyecto</h2>
+    <form (ngSubmit)="submitProject()">
+      <div class="form-group">
+        <label>Título del Proyecto</label>
+        <input type="text"  name="title" required>
+      </div>
+  
+      <div class="form-group">
+        <label>Descripción</label>
+        <textarea name="description" required></textarea>
+      </div>
+  
+      <div class="form-row">
+        <div class="form-group">
+          <label>Meta de financiación ($)</label>
+          <input type="number" name="goal" required>
+        </div>
+  
+        <div class="form-group">
+          <label>Categoría</label>
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Document</title>
+          </head>
+          <body>
+            
+          </body>
+          </html><select name="category" required>
+            <option *ngFor="let cat of categories" [value]="cat">{{cat}}</option>
+          </select>
+        </div>
+      </div>
+  
+      <div class="form-group">
+        <label>Fecha Límite</label>
+        <input type="date"  name="deadline" required>
+      </div>
+  
+      <button type="submit" class="button-primary">Publicar Proyecto</button>
+    </form>
+  </div>
