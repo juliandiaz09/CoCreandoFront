@@ -1,7 +1,9 @@
+// login.component.ts
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -19,7 +21,10 @@ export class LoginComponent {
   activeField: string = '';
   showPassword: boolean = false;
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService
+  ) {}
 
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
@@ -41,25 +46,23 @@ export class LoginComponent {
       return;
     }
 
-    // Simular carga
     this.loading = true;
     this.errorMessage = '';
 
-    // Simular llamada API
+    // Simular llamada API con timeout
     setTimeout(() => {
-      this.loading = false;
-      
-      // Lógica de autenticación temporal
-      if (this.email && this.password) {
-        if (this.rememberMe) {
-          // Guardar en localStorage si "Recordarme" está marcado
-          localStorage.setItem('rememberedEmail', this.email);
+      try {
+        const success = this.authService.login(this.email, this.password, this.rememberMe);
+        
+        if (!success) {
+          this.errorMessage = 'Credenciales incorrectas. Por favor inténtalo de nuevo.';
         }
-        this.router.navigate(['/dashboard']);
-      } else {
-        this.errorMessage = 'Credenciales incorrectas. Por favor inténtalo de nuevo.';
+      } catch (error) {
+        this.errorMessage = 'Ocurrió un error durante el inicio de sesión.';
+      } finally {
+        this.loading = false;
       }
-    }, 1500);
+    }, 1000);
   }
 
   private validateEmail(email: string): boolean {

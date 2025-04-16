@@ -3,8 +3,19 @@
     <div class="container">
       <span class="logo">CoCreando</span>
       <div class="nav-links">
-        <a routerLink="/login">Iniciar Sesión</a>
-        <a routerLink="/dashboard">Proyectos</a>
+        <a (click)="navigateTo('/dashboard')">Proyectos</a>
+        
+        <!-- Mostrar enlaces condicionales basados en el estado de autenticación -->
+        <ng-container *ngIf="authService.isAuthenticated$ | async; else notAuthenticated">
+          <a (click)="navigateTo('/user-profile')">Perfil</a>
+          <a *ngIf="authService.isAdmin()" (click)="navigateTo('/admin')">Admin</a>
+          <a (click)="logout()" style="cursor: pointer;">Cerrar Sesión</a>
+        </ng-container>
+        
+        <ng-template #notAuthenticated>
+          <a (click)="navigateTo('/login')">Iniciar Sesión</a>
+          <a (click)="navigateTo('/register')">Registrarse</a>
+        </ng-template>
       </div>
     </div>
   </nav>
@@ -13,6 +24,7 @@
     <router-outlet></router-outlet>
   </div>
 
-<footer class="app-footer">
-  <span>© 2025 CoCreando - Todos los derechos reservados</span>
-</footer>
+  <footer class="app-footer">
+    <span>© 2025 CoCreando - Todos los derechos reservados</span>
+  </footer>
+</div>
