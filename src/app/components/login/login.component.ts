@@ -21,6 +21,10 @@ export class LoginComponent {
   activeField: string = '';
   showPassword: boolean = false;
 
+  navigateTo(route: string) {
+    this.router.navigate([route]);
+  }
+  
   constructor(
     private router: Router,
     private authService: AuthService

@@ -5,6 +5,7 @@ import { AdminComponent } from './components/admin/admin.component';
 import { UserProfileComponent } from './components/user-profile/user-profile.component';
 import { AuthGuard } from './guards/auth.guard';
 import { AdminGuard } from './guards/admin.guard';
+import { RegisterComponent } from './components/register/register.component';
 
 export const routes: Routes = [
   { 
@@ -23,6 +24,7 @@ export const routes: Routes = [
     canActivate: [AuthGuard] 
   },
   { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
   { 
     path: '', 
     redirectTo: '/dashboard', 

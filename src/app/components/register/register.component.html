@@ -1,0 +1,78 @@
+<div class="login-wrapper">
+    <div class="login-container">
+      <div class="login-header">
+        <img src="assets/logo.svg" alt="CoCreando Logo" class="logo">
+        <h1>Regístrate en <span>CoCreando</span></h1>
+        <p>Crea tu cuenta para empezar a colaborar</p>
+      </div>
+  
+      <form (ngSubmit)="onSubmit()" class="login-form">
+        <div class="form-group floating">
+          <input type="text" id="name" [(ngModel)]="name" name="name" required 
+                 placeholder=" " (focus)="activeField = 'name'" (blur)="activeField = ''">
+          <label for="name" [class.active]="activeField === 'name' || name">Nombre completo</label>
+          <i class="icon">👤</i>
+        </div>
+  
+        <div class="form-group floating">
+          <input type="email" id="email" [(ngModel)]="email" name="email" required 
+                 placeholder=" " (focus)="activeField = 'email'" (blur)="activeField = ''">
+          <label for="email" [class.active]="activeField === 'email' || email">Correo electrónico</label>
+          <i class="icon">✉️</i>
+        </div>
+  
+        <div class="form-group floating">
+          <input [type]="showPassword ? 'text' : 'password'" id="password" [(ngModel)]="password" name="password" required
+                 placeholder=" " (focus)="activeField = 'password'" (blur)="activeField = ''">
+          <label for="password" [class.active]="activeField === 'password' || password">Contraseña</label>
+          <i class="icon">🔒</i>
+          <button type="button" class="toggle-password" (click)="togglePasswordVisibility('password')">
+            {{ showPassword ? '👁️‍🗨️' : '👁️' }}
+          </button>
+        </div>
+  
+        <div class="form-group floating">
+          <input [type]="showConfirmPassword ? 'text' : 'password'" id="confirmPassword" [(ngModel)]="confirmPassword" 
+                 name="confirmPassword" required placeholder=" " 
+                 (focus)="activeField = 'confirmPassword'" (blur)="activeField = ''">
+          <label for="confirmPassword" [class.active]="activeField === 'confirmPassword' || confirmPassword">Confirmar contraseña</label>
+          <i class="icon">🔒</i>
+          <button type="button" class="toggle-password" (click)="togglePasswordVisibility('confirmPassword')">
+            {{ showConfirmPassword ? '👁️‍🗨️' : '👁️' }}
+          </button>
+        </div>
+  
+        <button type="submit" class="login-button" [disabled]="loading">
+          <span *ngIf="!loading">Registrarse</span>
+          <span *ngIf="loading" class="spinner"></span>
+        </button>
+  
+        <div *ngIf="errorMessage" class="error-message">
+          <i class="error-icon">⚠️</i>
+          {{ errorMessage }}
+        </div>
+  
+        <div class="social-login">
+          <p>O regístrate con</p>
+          <div class="social-buttons">
+            <button type="button" class="social-button google">
+              <img src="assets/google-icon.svg" alt="Google"> Google
+            </button>
+            <button type="button" class="social-button github">
+              <img src="assets/github-icon.svg" alt="GitHub"> GitHub
+            </button>
+          </div>
+        </div>
+  
+        <div class="register-link">
+          ¿Ya tienes una cuenta? <a (click)="navigateTo('/login')">Inicia sesión</a>
+        </div>
+      </form>
+    </div>
+  
+    <div class="login-background">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+    </div>
+  </div>

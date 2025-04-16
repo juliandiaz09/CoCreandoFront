@@ -1,0 +1,16 @@
+// Reutiliza los mismos estilos que login.component.scss
+@import '../login/login.component.scss';
+
+// Solo necesitamos algunos ajustes menores
+.login-header {
+  h1 {
+    font-size: 1.7rem;
+  }
+}
+
+// Ajustes específicos para el formulario de registro
+.login-form {
+  .form-group {
+    margin-bottom: 1.3rem;
+  }
+}

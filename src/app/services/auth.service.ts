@@ -53,13 +53,15 @@ export class AuthService {
     return true;
   }
 
-  logout() {
-    this.loggedIn.next(false);
-    this.currentUser.next(null);
-    localStorage.removeItem('currentUser');
-    sessionStorage.removeItem('currentUser');
-    this.router.navigate(['/login']);
-  }
+  // auth.service.ts (actualización)
+logout() {
+  this.loggedIn.next(false);
+  this.currentUser.next(null);
+  localStorage.removeItem('currentUser');
+  sessionStorage.removeItem('currentUser');
+  localStorage.removeItem('rememberedEmail');
+  this.router.navigate(['/login']);
+}
 
   getCurrentUser() {
     return this.currentUser.value;
