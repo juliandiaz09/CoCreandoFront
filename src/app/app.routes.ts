@@ -6,12 +6,17 @@ import { UserProfileComponent } from './components/user-profile/user-profile.com
 import { AuthGuard } from './guards/auth.guard';
 import { AdminGuard } from './guards/admin.guard';
 import { RegisterComponent } from './components/register/register.component';
+import {ProjectDetailsComponent} from './components/project-details/project-details.component'
 
 export const routes: Routes = [
   { 
     path: 'dashboard', 
     component: DashboardComponent
     // Removemos el AuthGuard para que sea accesible sin login
+  },
+  { 
+    path: 'project/:id', 
+    component: ProjectDetailsComponent
   },
   { 
     path: 'admin', 

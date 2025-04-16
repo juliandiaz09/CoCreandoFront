@@ -1,0 +1,238 @@
+// Variables de color
+$primary-color: #88c9a1;
+$secondary-color: #c8e6c9;
+$accent-color: #4caf50;
+$background-color: #f8fffa;
+$text-color: #2e7d32;
+$white: #ffffff;
+$shadow-color: rgba(0, 0, 0, 0.1);
+
+.project-details-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+
+  .project-header {
+    margin-bottom: 2rem;
+    
+    h1 {
+      color: $accent-color;
+      margin-bottom: 0.5rem;
+    }
+
+    .location {
+      color: lighten($text-color, 20%);
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .category {
+      display: inline-block;
+      background: $secondary-color;
+      color: $text-color;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+    }
+  }
+
+  .project-content {
+    display: flex;
+    gap: 2rem;
+
+    .main-content {
+      flex: 2;
+      
+      h2 {
+        color: $accent-color;
+        margin: 1.5rem 0 1rem;
+        border-bottom: 2px solid $secondary-color;
+        padding-bottom: 0.5rem;
+      }
+
+      .project-updates {
+        .update {
+          background: $white;
+          padding: 1rem;
+          border-radius: 8px;
+          margin-bottom: 1rem;
+          box-shadow: 0 2px 4px $shadow-color;
+
+          .date {
+            color: lighten($text-color, 30%);
+            font-size: 0.9rem;
+            margin-left: 1rem;
+          }
+        }
+      }
+    }
+
+    .sidebar {
+      flex: 1;
+      
+      > div {
+        background: $white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 4px $shadow-color;
+      }
+
+      h3 {
+        color: $accent-color;
+        margin-top: 0;
+        margin-bottom: 1rem;
+      }
+
+      .progress-container {
+        .progress-bar {
+          height: 10px;
+          background: $secondary-color;
+          border-radius: 5px;
+          margin-bottom: 0.5rem;
+          overflow: hidden;
+
+          .progress-fill {
+            height: 100%;
+            background: $primary-color;
+            transition: width 0.5s ease;
+          }
+        }
+
+        .progress-stats {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 0.5rem;
+
+          .percentage {
+            font-weight: bold;
+            color: $accent-color;
+          }
+        }
+
+        .time-remaining {
+          text-align: center;
+          color: lighten($text-color, 20%);
+          font-size: 0.9rem;
+        }
+      }
+
+      .investment-section {
+        .form-group {
+          margin-bottom: 1rem;
+
+          label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: $text-color;
+          }
+
+          input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 2px solid $secondary-color;
+            border-radius: 5px;
+          }
+        }
+
+        .invest-button {
+          width: 100%;
+          padding: 0.8rem;
+          background: $accent-color;
+          color: $white;
+          border: none;
+          border-radius: 5px;
+          font-weight: bold;
+          cursor: pointer;
+          transition: background 0.3s;
+
+          &:hover {
+            background: darken($accent-color, 10%);
+          }
+        }
+      }
+
+      .rewards-section {
+        .reward {
+          margin-bottom: 1rem;
+          padding-bottom: 1rem;
+          border-bottom: 1px dashed $secondary-color;
+
+          &:last-child {
+            border-bottom: none;
+          }
+
+          h4 {
+            color: $accent-color;
+            margin: 0.5rem 0;
+          }
+
+          h5 {
+            margin: 0.5rem 0;
+            color: $text-color;
+          }
+        }
+      }
+
+      .creator-section {
+        .creator-info {
+          display: flex;
+          gap: 1rem;
+          align-items: center;
+
+          .creator-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+          }
+
+          .creator-details {
+            h4 {
+              margin: 0 0 0.3rem;
+              color: $text-color;
+            }
+
+            a {
+              color: $accent-color;
+              text-decoration: none;
+              font-size: 0.9rem;
+
+              &:hover {
+                text-decoration: underline;
+              }
+            }
+          }
+        }
+      }
+
+      .supporters-section {
+        .supporter {
+          display: flex;
+          justify-content: space-between;
+          padding: 0.5rem 0;
+          border-bottom: 1px dashed $secondary-color;
+
+          &:last-child {
+            border-bottom: none;
+          }
+
+          .supporter-name {
+            color: $text-color;
+          }
+
+          .supporter-amount {
+            color: $accent-color;
+            font-weight: bold;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .project-content {
+    flex-direction: column !important;
+  }
+}
