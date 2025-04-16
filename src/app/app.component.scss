@@ -1,0 +1,131 @@
+// Variables extendidas
+$primary-color: #88c9a1;
+$secondary-color: #c8e6c9;
+$accent-color: #4caf50;
+$background-color: #f8fffa;
+$text-color: #2e7d32;
+$white: #ffffff;
+$shadow-color: rgba(0, 0, 0, 0.1);
+
+// Estructura principal
+.main-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+// Barra de navegación mejorada
+.navbar {
+  background-color: $white;
+  padding: 0;
+  box-shadow: 0 4px 12px $shadow-color;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  
+  .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+  }
+  
+  .logo {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: $accent-color;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    
+    &::before {
+      content: "🌱";
+      margin-right: 0.5rem;
+      font-size: 1.5rem;
+    }
+  }
+  
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    
+    a {
+      color: $text-color;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 1.1rem;
+      position: relative;
+      padding: 0.5rem 0;
+      transition: all 0.3s ease;
+      
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background-color: $accent-color;
+        transition: width 0.3s ease;
+      }
+      
+      &:hover {
+        color: $accent-color;
+        
+        &::after {
+          width: 100%;
+        }
+      }
+      
+      &.active {
+        color: $accent-color;
+        font-weight: 600;
+        
+        &::after {
+          width: 100%;
+        }
+      }
+    }
+  }
+}
+
+// Contenido principal
+.content {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+// Footer mejorado
+.app-footer {
+  background-color: $secondary-color;
+  padding: 1.5rem;
+  text-align: center;
+  margin-top: auto;
+  
+  span {
+    color: $text-color;
+    font-size: 0.9rem;
+    display: block;
+  }
+}
+
+// Efectos adicionales
+@media (max-width: 768px) {
+  .navbar {
+    .container {
+      padding: 1rem;
+      flex-direction: column;
+    }
+    
+    .nav-links {
+      margin-top: 1rem;
+      gap: 1.5rem;
+    }
+  }
+}
