@@ -1,1 +1,58 @@
-/* You can add global styles to this file, and also import other style files */
+// Variables de color
+$primary-color: #88c9a1; // Verde pastel
+$secondary-color: #c8e6c9; // Verde claro
+$accent-color: #4caf50; // Verde más vivo
+$background-color: #f8fffa; // Fondo blanco verdoso
+$text-color: #2e7d32; // Verde oscuro
+
+// Estilos globales
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Arial', sans-serif;
+}
+
+body {
+  background-color: $background-color;
+  color: $text-color;
+}
+
+.button-primary {
+  background-color: $primary-color;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: darken($primary-color, 10%);
+  }
+}
+
+.navbar {
+  background-color: $secondary-color;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  
+  .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: $text-color;
+  }
+  
+  .nav-links {
+    a {
+      color: $text-color;
+      text-decoration: none;
+      margin-left: 2rem;
+      transition: color 0.3s;
+      
+      &:hover {
+        color: $accent-color;
+      }
+    }
+  }
+}
