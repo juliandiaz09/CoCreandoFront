@@ -1,4 +1,8 @@
 import {
+  DOCUMENT,
+  isPlatformBrowser
+} from "./chunk-MV5EAXGW.js";
+import {
   ApplicationRef,
   Attribute,
   ChangeDetectorRef,
@@ -63,9 +67,6 @@ import {
   __spreadProps,
   __spreadValues
 } from "./chunk-CXCX2JKZ.js";
-
-// node_modules/@angular/common/fesm2022/dom_tokens-rA0ACyx7.mjs
-var DOCUMENT = new InjectionToken(ngDevMode ? "DocumentToken" : "");
 
 // node_modules/@angular/common/fesm2022/location-DpBxd_aX.mjs
 var _DOM = null;
@@ -3647,29 +3648,6 @@ var CommonModule = class _CommonModule {
   }], null, null);
 })();
 
-// node_modules/@angular/common/fesm2022/xhr-BfNfxNDv.mjs
-function parseCookieValue(cookieStr, name) {
-  name = encodeURIComponent(name);
-  for (const cookie of cookieStr.split(";")) {
-    const eqIndex = cookie.indexOf("=");
-    const [cookieName, cookieValue] = eqIndex == -1 ? [cookie, ""] : [cookie.slice(0, eqIndex), cookie.slice(eqIndex + 1)];
-    if (cookieName.trim() === name) {
-      return decodeURIComponent(cookieValue);
-    }
-  }
-  return null;
-}
-var PLATFORM_BROWSER_ID = "browser";
-var PLATFORM_SERVER_ID = "server";
-function isPlatformBrowser(platformId) {
-  return platformId === PLATFORM_BROWSER_ID;
-}
-function isPlatformServer(platformId) {
-  return platformId === PLATFORM_SERVER_ID;
-}
-var XhrFactory = class {
-};
-
 // node_modules/@angular/common/fesm2022/platform_navigation-B45Jeakb.mjs
 var PlatformNavigation = class _PlatformNavigation {
   static ɵfac = function PlatformNavigation_Factory(__ngFactoryType__) {
@@ -5031,7 +5009,6 @@ function booleanOrUrlAttribute(value) {
 }
 
 export {
-  DOCUMENT,
   getDOM,
   setRootDomAdapter,
   DomAdapter,
@@ -5107,12 +5084,6 @@ export {
   CurrencyPipe,
   SlicePipe,
   CommonModule,
-  parseCookieValue,
-  PLATFORM_BROWSER_ID,
-  PLATFORM_SERVER_ID,
-  isPlatformBrowser,
-  isPlatformServer,
-  XhrFactory,
   PlatformNavigation,
   registerLocaleData2 as registerLocaleData,
   VERSION,
@@ -5129,13 +5100,6 @@ export {
 };
 /*! Bundled license information:
 
-@angular/common/fesm2022/dom_tokens-rA0ACyx7.mjs:
-  (**
-   * @license Angular v19.2.6
-   * (c) 2010-2025 Google LLC. https://angular.io/
-   * License: MIT
-   *)
-
 @angular/common/fesm2022/location-DpBxd_aX.mjs:
   (**
    * @license Angular v19.2.6
@@ -5144,13 +5108,6 @@ export {
    *)
 
 @angular/common/fesm2022/common_module-CBrzkrmd.mjs:
-  (**
-   * @license Angular v19.2.6
-   * (c) 2010-2025 Google LLC. https://angular.io/
-   * License: MIT
-   *)
-
-@angular/common/fesm2022/xhr-BfNfxNDv.mjs:
   (**
    * @license Angular v19.2.6
    * (c) 2010-2025 Google LLC. https://angular.io/
@@ -5171,4 +5128,4 @@ export {
    * License: MIT
    *)
 */
-//# sourceMappingURL=chunk-UXO25QPA.js.map
+//# sourceMappingURL=chunk-DGVLVK7C.js.map
