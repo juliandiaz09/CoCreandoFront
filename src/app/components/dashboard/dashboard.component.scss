@@ -1,72 +1,202 @@
-// Variables de color
-$primary-color: #88c9a1; // Verde pastel
-$secondary-color: #c8e6c9; // Verde claro
-$accent-color: #4caf50; // Verde más vivo
-$background-color: #f8fffa; // Fondo blanco verdoso
-$text-color: #2e7d32; // Verde oscuro
-
 .dashboard-container {
   padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
   
-  .filters {
-    margin-bottom: 2rem;
+  h1 {
+    margin: 0;
+    color: #2c3e50;
+  }
+}
+
+.filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  
+  .search-filter {
+    flex: 1;
     
-    select {
+    input {
+      width: 100%;
       padding: 0.5rem;
-      border: 2px solid $secondary-color;
-      border-radius: 5px;
-      background: white;
-      color: $text-color;
+      border: 1px solid #ddd;
+      border-radius: 4px;
     }
   }
-
-  .projects-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 2rem;
-
-    .project-card {
-      background: white;
-      padding: 1.5rem;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      
-      h3 {
-        color: $accent-color;
-        margin-bottom: 1rem;
-      }
-
-      .progress {
-        height: 20px;
-        background: $secondary-color;
-        border-radius: 10px;
-        margin: 1rem 0;
-        position: relative;
-
-        .progress-bar {
-          height: 100%;
-          background: $primary-color;
-          border-radius: 10px;
-          transition: width 0.5s ease;
-        }
-
-        span {
-          position: absolute;
-          right: 5px;
-          top: 50%;
-          transform: translateY(-50%);
-          color: white;
-          font-weight: bold;
-        }
-      }
-
-      .stats {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 0.5rem;
-        margin: 1rem 0;
-        font-size: 0.9rem;
-      }
+  
+  .category-filter {
+    select {
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background-color: white;
     }
+  }
+}
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.project-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  }
+  
+  .project-image {
+    height: 160px;
+    overflow: hidden;
+    
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+  
+  .project-content {
+    padding: 1.5rem;
+    
+    h3 {
+      margin-top: 0;
+      color: #2c3e50;
+    }
+    
+    .description {
+      color: #666;
+      margin-bottom: 1rem;
+    }
+    
+    .category-tag {
+      display: inline-block;
+      background-color: #f0f0f0;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      margin-bottom: 1rem;
+    }
+  }
+}
+
+.progress-container {
+  margin: 1rem 0;
+  
+  .progress-bar {
+    height: 8px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    overflow: hidden;
+    
+    .progress-fill {
+      height: 100%;
+      background-color: #42b983;
+      transition: width 0.3s;
+    }
+  }
+  
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    
+    .percentage {
+      font-weight: bold;
+      color: #42b983;
+    }
+    
+    .days-left {
+      color: #666;
+    }
+  }
+}
+
+.stats {
+  display: flex;
+  gap: 1rem;
+  margin: 1rem 0;
+  
+  .stat {
+    flex: 1;
+    
+    .label {
+      display: block;
+      font-size: 0.8rem;
+      color: #666;
+    }
+    
+    .value {
+      font-weight: bold;
+    }
+  }
+}
+
+.button-primary {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #42b983;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  
+  &:hover {
+    background-color: #369f73;
+  }
+}
+
+.loading-spinner, .error-message, .no-projects {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+}
+
+.error-message {
+  color: #e74c3c;
+  
+  button {
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+}
+
+.refresh-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #666;
+  
+  &:hover {
+    color: #42b983;
+  }
+  
+  .refresh-icon {
+    font-size: 1.2rem;
   }
 }
