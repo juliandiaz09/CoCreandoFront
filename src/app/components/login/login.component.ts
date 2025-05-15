@@ -39,35 +39,42 @@ export class LoginComponent {
   }
 
   onSubmit(): void {
-    // Validación básica
-    if (!this.email || !this.password) {
-      this.errorMessage = 'Por favor completa todos los campos';
-      return;
-    }
-
-    if (!this.validateEmail(this.email)) {
-      this.errorMessage = 'Por favor ingresa un correo electrónico válido';
-      return;
-    }
-
-    this.loading = true;
-    this.errorMessage = '';
-
-    // Simular llamada API con timeout
-    setTimeout(() => {
-      try {
-        const success = this.authService.login(this.email, this.password, this.rememberMe);
-        
-        if (!success) {
-          this.errorMessage = 'Credenciales incorrectas. Por favor inténtalo de nuevo.';
-        }
-      } catch (error) {
-        this.errorMessage = 'Ocurrió un error durante el inicio de sesión.';
-      } finally {
-        this.loading = false;
-      }
-    }, 1000);
+  // Validación básica
+  if (!this.email || !this.password) {
+    this.errorMessage = 'Por favor completa todos los campos';
+    return;
   }
+
+  if (!this.validateEmail(this.email)) {
+    this.errorMessage = 'Por favor ingresa un correo electrónico válido';
+    return;
+  }
+
+  this.loading = true;
+  this.errorMessage = '';
+
+  this.authService.login(this.email, this.password, this.rememberMe).subscribe({
+    next: (success) => {
+      this.loading = false;
+      if (success) {
+        this.router.navigate(['/dashboard']);
+      } else {
+        this.errorMessage = 'Credenciales incorrectas. Por favor inténtalo de nuevo.';
+      }
+    },
+    error: (error) => {
+      this.loading = false;
+      this.errorMessage = this.getErrorMessage(error);
+    }
+  });
+}
+
+private getErrorMessage(error: any): string {
+  if (error.error?.message) {
+    return error.error.message;
+  }
+  return 'Ocurrió un error durante el inicio de sesión. Por favor inténtalo más tarde.';
+}
 
   private validateEmail(email: string): boolean {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
