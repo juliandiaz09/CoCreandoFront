@@ -10,6 +10,7 @@ $error: #e53e3e;
 $success: #38a169;
 $border-radius: 12px;
 $box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+@use 'sass:color';
 
 // Mixins
 @mixin transition($property: all, $duration: 0.3s, $easing: ease-in-out) {
@@ -223,7 +224,7 @@ $box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
   @include transition();
 
   &:hover {
-    background: linear-gradient(135deg, darken($primary, 5%), darken($primary-light, 5%));
+    background: linear-gradient(135deg, color.adjust($primary, $lightness: -5%), color.adjust($primary-light, $lightness: -5%));
     transform: translateY(-2px);
   }
 

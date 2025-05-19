@@ -4,6 +4,7 @@ $secondary-color: #c8e6c9; // Verde claro
 $accent-color: #4caf50; // Verde más vivo
 $background-color: #f8fffa; // Fondo blanco verdoso
 $text-color: #2e7d32; // Verde oscuro
+@use 'sass:color';
 
 // Estilos globales
 * {
@@ -28,7 +29,8 @@ body {
   transition: background-color 0.3s;
 
   &:hover {
-    background-color: darken($primary-color, 10%);
+    
+    background-color: color.adjust($primary-color, $lightness: -10%);
   }
 }
 

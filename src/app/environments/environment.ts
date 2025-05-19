@@ -1,13 +1,27 @@
-
-export const environment = {
-  production: false,
-  apiUrl: 'http://localhost:5000/api', // Ajusta según tu puerto de Flask
+// src/environments/environment.ts
+export interface Environment {
+  production: boolean;
+  apiUrl: string;
   firebaseConfig: {
-    apiKey: "TU_API_KEY",
-    authDomain: "TU_DOMAIN.firebaseapp.com",
-    projectId: "TU_PROJECT_ID",
-    storageBucket: "TU_BUCKET.appspot.com",
-    messagingSenderId: "TU_SENDER_ID",
-    appId: "TU_APP_ID"
+    apiKey: string;
+    authDomain: string;
+    projectId: string;
+    storageBucket: string;
+    messagingSenderId: string;
+    appId: string;
+  };
+}
+
+export const environment: Environment = {
+  production: false,
+  apiUrl: 'http://localhost:5000/api',
+  firebaseConfig: {
+    apiKey: "AIzaSyDnCfzF5psHLcnmbeJGrBuWpxOkUp01Lfo",
+    authDomain: "cocreando-2dbd1.firebaseapp.com",
+    projectId: "cocreando-2dbd1",
+    storageBucket: "cocreando-2dbd1.firebasestorage.app",
+    messagingSenderId: "862709485856",
+    appId: "1:862709485856:web:e0994b08e2a748679b0745",
+    measurementId: "G-EXLRNLVN1B"
   }
 };

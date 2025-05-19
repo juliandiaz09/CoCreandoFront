@@ -4,13 +4,13 @@ import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
-import { environment } from '../../environments/environment';
+import { environment } from '../environments/environment'; // Sin .ts al final
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = environment.apiUrl;
+  private readonly apiUrl = (environment as any).apiUrl;
   private loggedIn = new BehaviorSubject<boolean>(false);
   private currentUser = new BehaviorSubject<any>(null);
   

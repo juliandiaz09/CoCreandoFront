@@ -1,5 +1,7 @@
 // Reutiliza los mismos estilos que login.component.scss
-@import '../login/login.component.scss';
+//@import '../login/login.component.scss';
+@use 'sass:color';
+@use '../login/login.component' as login;
 
 // Solo necesitamos algunos ajustes menores
 .login-header {

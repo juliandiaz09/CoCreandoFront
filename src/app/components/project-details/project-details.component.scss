@@ -6,6 +6,7 @@ $background-color: #f8fffa;
 $text-color: #2e7d32;
 $white: #ffffff;
 $shadow-color: rgba(0, 0, 0, 0.1);
+@use 'sass:color';
 
 .project-details-container {
   max-width: 1200px;
@@ -21,7 +22,7 @@ $shadow-color: rgba(0, 0, 0, 0.1);
     }
 
     .location {
-      color: lighten($text-color, 20%);
+      color: color.adjust($text-color, $lightness: 20%);
       font-size: 1.1rem;
       margin-bottom: 0.5rem;
     }
