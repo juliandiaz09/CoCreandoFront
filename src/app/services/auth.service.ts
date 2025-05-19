@@ -1,24 +1,84 @@
 // auth.service.ts
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, throwError } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
-import { environment } from '../environments/environment'; // Sin .ts al final
+import { Auth, signInWithEmailAndPassword, User, createUserWithEmailAndPassword } from 'firebase/auth';
+import { initializeAuth, indexedDBLocalPersistence } from 'firebase/auth';
+import { FirebaseApp, initializeApp } from 'firebase/app';
+import { environment } from '../environments/environment';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly apiUrl = (environment as any).apiUrl;
+  private firebaseApp: FirebaseApp;
+  private auth: Auth;
   private loggedIn = new BehaviorSubject<boolean>(false);
-  private currentUser = new BehaviorSubject<any>(null);
-  
-  constructor(
-    private router: Router,
-    private http: HttpClient
-  ) {
-    this.checkAuthState();
+  private currentUser = new BehaviorSubject<User | null>(null);
+
+  constructor(private router: Router) {
+    this.firebaseApp = initializeApp(environment.firebaseConfig);
+    this.auth = initializeAuth(this.firebaseApp, {
+      persistence: indexedDBLocalPersistence
+    });
+    this.setupAuthStateListener();
+  }
+
+  private setupAuthStateListener() {
+    this.auth.onAuthStateChanged(user => {
+      this.loggedIn.next(!!user);
+      this.currentUser.next(user);
+      
+      // Guardar en almacenamiento según preferencia
+      if (user) {
+        sessionStorage.setItem('firebase_user', JSON.stringify(user));
+      }
+    });
+  }
+
+  async login(email: string, password: string, rememberMe: boolean = false): Promise<boolean> {
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        this.auth,
+        email,
+        password
+      );
+      
+      if (rememberMe) {
+        localStorage.setItem('firebase_user', JSON.stringify(userCredential.user));
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
+    }
+  }
+
+  async register(email: string, password: string): Promise<User> {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        this.auth,
+        email,
+        password
+      );
+      return userCredential.user;
+    } catch (error) {
+      console.error('Registration error:', error);
+      throw error;
+    }
+  }
+
+  isAdmin(): boolean {
+    const user = this.currentUser.value;
+    return user?.email?.endsWith('@admin.com') || false;
+  }
+
+  logout(): void {
+    this.auth.signOut();
+    localStorage.removeItem('firebase_user');
+    sessionStorage.removeItem('firebase_user');
+    this.router.navigate(['/login']);
   }
 
   get isAuthenticated$() {
@@ -29,56 +89,13 @@ export class AuthService {
     return this.currentUser.asObservable();
   }
 
-  login(email: string, password: string, rememberMe: boolean = false): Observable<boolean> {
-    return this.http.post<any>(`${this.apiUrl}/login`, { email, password }).pipe(
-      tap(response => {
-        if (response && response.token) {
-          this.handleAuthentication(response, rememberMe);
-        }
-      }),
-      map(response => !!response.token),
-      catchError(error => {
-        console.error('Login error:', error);
-        return throwError(() => error);
-      })
-    );
+  async getToken(): Promise<string | null> {
+    return this.auth.currentUser?.getIdToken() ?? null;
   }
 
-  private handleAuthentication(authData: any, rememberMe: boolean): void {
-    const storage = rememberMe ? localStorage : sessionStorage;
-    storage.setItem('firebase_token', authData.token);
-    storage.setItem('user_data', JSON.stringify(authData.user));
-    
-    this.loggedIn.next(true);
-    this.currentUser.next(authData.user);
-  }
-
-  logout(): void {
-    this.loggedIn.next(false);
-    this.currentUser.next(null);
-    localStorage.removeItem('firebase_token');
-    sessionStorage.removeItem('firebase_token');
-    localStorage.removeItem('user_data');
-    sessionStorage.removeItem('user_data');
-    this.router.navigate(['/login']);
-  }
-
-  isAdmin(): boolean {
-    const user = this.currentUser.value;
-    return user && user.rol === 'administrador';
-  }
-
-  private checkAuthState(): void {
-    const token = localStorage.getItem('firebase_token') || sessionStorage.getItem('firebase_token');
-    const userData = localStorage.getItem('user_data') || sessionStorage.getItem('user_data');
-    
-    if (token && userData) {
-      this.loggedIn.next(true);
-      this.currentUser.next(JSON.parse(userData));
-    }
-  }
-
-  getToken(): string | null {
-    return localStorage.getItem('firebase_token') || sessionStorage.getItem('firebase_token');
+  getTokenSync(): string | null {
+    // Solo para uso en el interceptor, no recomendado para otros usos
+    const user = JSON.parse(sessionStorage.getItem('firebase_user') || localStorage.getItem('firebase_user') || 'null');
+    return user?.stsTokenManager?.accessToken || null;
   }
 }

@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+// register.component.ts
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -22,14 +23,8 @@ export class RegisterComponent {
   showPassword: boolean = false;
   showConfirmPassword: boolean = false;
 
-  navigateTo(route: string) {
-    this.router.navigate([route]);
-  }
-  
-  constructor(
-    private router: Router,
-    private authService: AuthService
-  ) {}
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
   togglePasswordVisibility(field: 'password' | 'confirmPassword'): void {
     if (field === 'password') {
@@ -39,8 +34,7 @@ export class RegisterComponent {
     }
   }
 
-  onSubmit(): void {
-    // Validación básica
+  async onSubmit(): Promise<void> {
     if (!this.name || !this.email || !this.password || !this.confirmPassword) {
       this.errorMessage = 'Por favor completa todos los campos';
       return;
@@ -64,26 +58,28 @@ export class RegisterComponent {
     this.loading = true;
     this.errorMessage = '';
 
-    // Simular llamada API con timeout
-    setTimeout(() => {
-      try {
-        // En una implementación real, aquí llamarías al servicio de registro
-        // Por ahora simulamos un registro exitoso
-        const success = true;
-        
-        if (success) {
-          // Auto-login después del registro
-          this.authService.login(this.email, this.password, false);
-          this.router.navigate(['/dashboard']);
-        } else {
-          this.errorMessage = 'Error al registrar. Por favor inténtalo de nuevo.';
-        }
-      } catch (error) {
-        this.errorMessage = 'Ocurrió un error durante el registro.';
-      } finally {
-        this.loading = false;
-      }
-    }, 1500);
+    try {
+      await this.authService.register(this.email, this.password);
+      await this.authService.login(this.email, this.password, false);
+      this.router.navigate(['/dashboard']);
+    } catch (error: any) {
+      this.errorMessage = this.getFirebaseErrorMessage(error.code);
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  private getFirebaseErrorMessage(code: string): string {
+    switch (code) {
+      case 'auth/email-already-in-use':
+        return 'El correo ya está registrado';
+      case 'auth/invalid-email':
+        return 'Correo electrónico inválido';
+      case 'auth/weak-password':
+        return 'La contraseña es demasiado débil';
+      default:
+        return 'Error al registrar el usuario';
+    }
   }
 
   private validateEmail(email: string): boolean {

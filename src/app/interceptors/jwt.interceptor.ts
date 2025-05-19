@@ -1,3 +1,4 @@
+// jwt.interceptor.ts
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { AuthService } from '../services/auth.service';
@@ -7,8 +8,8 @@ import { catchError, throwError } from 'rxjs';
 export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const router = inject(Router);
-
-  const token = authService.getToken();
+  
+  const token = authService.getTokenSync();
   
   if (token) {
     req = req.clone({
@@ -17,7 +18,7 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
       }
     });
   }
-
+  
   return next(req).pipe(
     catchError((error) => {
       if (error.status === 401) {

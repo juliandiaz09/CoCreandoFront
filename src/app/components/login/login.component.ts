@@ -38,8 +38,7 @@ export class LoginComponent {
     }
   }
 
-  onSubmit(): void {
-  // Validación básica
+  async onSubmit(): Promise<void> {
   if (!this.email || !this.password) {
     this.errorMessage = 'Por favor completa todos los campos';
     return;
@@ -53,22 +52,30 @@ export class LoginComponent {
   this.loading = true;
   this.errorMessage = '';
 
-  this.authService.login(this.email, this.password, this.rememberMe).subscribe({
-    next: (success) => {
-      this.loading = false;
-      if (success) {
-        this.router.navigate(['/dashboard']);
-      } else {
-        this.errorMessage = 'Credenciales incorrectas. Por favor inténtalo de nuevo.';
-      }
-    },
-    error: (error) => {
-      this.loading = false;
-      this.errorMessage = this.getErrorMessage(error);
+  try {
+    const success = await this.authService.login(this.email, this.password, this.rememberMe);
+    if (success) {
+      this.router.navigate(['/dashboard']);
     }
-  });
+  } catch (error: any) {
+    this.errorMessage = this.getFirebaseErrorMessage(error.code);
+  } finally {
+    this.loading = false;
+  }
 }
 
+private getFirebaseErrorMessage(code: string): string {
+  switch (code) {
+    case 'auth/user-not-found':
+      return 'Usuario no encontrado';
+    case 'auth/wrong-password':
+      return 'Contraseña incorrecta';
+    case 'auth/too-many-requests':
+      return 'Demasiados intentos. Intenta más tarde';
+    default:
+      return 'Error al iniciar sesión';
+  }
+}
 private getErrorMessage(error: any): string {
   if (error.error?.message) {
     return error.error.message;
