@@ -22,6 +22,10 @@ export class ProjectService {
     );
   }
 
+  getProjectAnalytics(projectId: string): Observable<any> {
+  return this.http.get(`${this.apiUrl}/analytics/${projectId}`);
+}
+
   getProjectById(id: string): Observable<Project | null> {
     return this.http.get<Project>(`${this.apiUrl}/obtenerProyecto/${id}`).pipe(
       catchError((error) => {

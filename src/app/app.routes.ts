@@ -6,7 +6,9 @@ import { UserProfileComponent } from './components/user-profile/user-profile.com
 import { AuthGuard } from './guards/auth.guard';
 import { AdminGuard } from './guards/admin.guard';
 import { RegisterComponent } from './components/register/register.component';
-import {ProjectDetailsComponent} from './components/project-details/project-details.component'
+import { ProjectDetailsComponent } from './components/project-details/project-details.component';
+import { ProjectCreationComponent } from './components/project-creation/project-creation.component';
+import { ProjectAnalyticsComponent } from './components/project-analytics/project-analytics.component';
 
 export const routes: Routes = [
   { 
@@ -34,6 +36,16 @@ export const routes: Routes = [
     path: '', 
     redirectTo: '/dashboard', 
     pathMatch: 'full' 
+  },
+  { 
+    path: 'project-creation', 
+    component: ProjectCreationComponent,
+    canActivate: [AuthGuard]
+  },
+  { 
+    path: 'project-analytics/:id', 
+    component: ProjectAnalyticsComponent,
+    canActivate: [AuthGuard]
   },
   { 
     path: '**', 
