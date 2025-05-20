@@ -1,4 +1,3 @@
-// register.component.ts
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -80,6 +79,10 @@ export class RegisterComponent {
       default:
         return 'Error al registrar el usuario';
     }
+  }
+
+  navigateTo(path: string): void {
+    this.router.navigate([path]);
   }
 
   private validateEmail(email: string): boolean {

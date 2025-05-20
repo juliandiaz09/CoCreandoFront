@@ -1,17 +1,4 @@
-// src/environments/environment.ts
-export interface Environment {
-  production: boolean;
-  apiUrl: string;
-  firebaseConfig: {
-    apiKey: string;
-    authDomain: string;
-    projectId: string;
-    storageBucket: string;
-    messagingSenderId: string;
-    appId: string;
-    measurementId: string;
-  };
-}
+import { Environment } from './environment.model';
 
 export const environment: Environment = {
   production: false,
