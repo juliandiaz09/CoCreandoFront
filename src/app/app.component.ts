@@ -23,7 +23,7 @@ export class AppComponent {
   }
 
   logout() {
-    this.authService.logout();
+    //this.authService.logout();
     this.router.navigate(['/dashboard']); // Redirige al dashboard después de logout
   }
 }

@@ -53,7 +53,7 @@ export class LoginComponent {
   this.errorMessage = '';
 
   try {
-    const success = await this.authService.login(this.email, this.password, this.rememberMe);
+    const success = await this.authService.login(this.email, this.password);
     if (success) {
       this.router.navigate(['/dashboard']);
     }

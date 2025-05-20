@@ -58,8 +58,8 @@ export class RegisterComponent {
     this.errorMessage = '';
 
     try {
-      await this.authService.register(this.email, this.password);
-      await this.authService.login(this.email, this.password, false);
+      //await this.authService.register(this.email, this.password);
+      await this.authService.login(this.email, this.password);
       this.router.navigate(['/dashboard']);
     } catch (error: any) {
       this.errorMessage = this.getFirebaseErrorMessage(error.code);

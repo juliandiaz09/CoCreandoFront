@@ -1,10 +1,48 @@
 import {
+  EnvironmentInjector,
+  Inject,
+  Injectable,
+  InjectionToken,
+  Injector,
+  NgModule,
+  NgZone,
+  Optional,
+  PLATFORM_ID,
+  PendingTasks,
+  VERSION,
+  Version,
+  assertInInjectionContext,
+  inject,
+  isDevMode,
+  makeEnvironmentProviders,
+  runInInjectionContext,
+  setClassMetadata,
+  ɵɵdefineInjectable,
+  ɵɵdefineInjector,
+  ɵɵdefineNgModule,
+  ɵɵinject
+} from "./chunk-NVVPXLQN.js";
+import {
+  queueScheduler
+} from "./chunk-NUWUJFVC.js";
+import {
+  Observable,
   __async,
   __spreadProps,
-  __spreadValues
-} from "./chunk-5K356HEJ.js";
+  __spreadValues,
+  asyncScheduler,
+  concatMap,
+  distinct,
+  from,
+  observeOn,
+  subscribeOn,
+  timer
+} from "./chunk-JOIKPE53.js";
 
-// node_modules/@firebase/util/dist/index.esm2017.js
+// node_modules/@angular/fire/node_modules/@firebase/util/dist/postinstall.mjs
+var getDefaultsFromPostinstall = () => void 0;
+
+// node_modules/@angular/fire/node_modules/@firebase/util/dist/index.esm2017.js
 var stringToByteArray$1 = function(str) {
   const out = [];
   let p = 0;
@@ -290,7 +328,7 @@ var getDefaultsFromCookie = () => {
 };
 var getDefaults = () => {
   try {
-    return getDefaultsFromGlobal() || getDefaultsFromEnvVariable() || getDefaultsFromCookie();
+    return getDefaultsFromPostinstall() || getDefaultsFromGlobal() || getDefaultsFromEnvVariable() || getDefaultsFromCookie();
   } catch (e) {
     console.info(`Unable to get __FIREBASE_DEFAULTS__ due to: ${e}`);
     return;
@@ -304,9 +342,9 @@ var getDefaultAppConfig = () => {
   var _a;
   return (_a = getDefaults()) === null || _a === void 0 ? void 0 : _a.config;
 };
-var getExperimentalSetting = (name2) => {
+var getExperimentalSetting = (name3) => {
   var _a;
-  return (_a = getDefaults()) === null || _a === void 0 ? void 0 : _a[`_${name2}`];
+  return (_a = getDefaults()) === null || _a === void 0 ? void 0 : _a[`_${name3}`];
 };
 var Deferred = class {
   constructor() {
@@ -343,6 +381,148 @@ var Deferred = class {
     };
   }
 };
+function isCloudWorkstation(host) {
+  return host.endsWith(".cloudworkstations.dev");
+}
+function pingServer(endpoint) {
+  return __async(this, null, function* () {
+    const result = yield fetch(endpoint, {
+      credentials: "include"
+    });
+    return result.ok;
+  });
+}
+var emulatorStatus = {};
+function getEmulatorSummary() {
+  const summary = {
+    prod: [],
+    emulator: []
+  };
+  for (const key of Object.keys(emulatorStatus)) {
+    if (emulatorStatus[key]) {
+      summary.emulator.push(key);
+    } else {
+      summary.prod.push(key);
+    }
+  }
+  return summary;
+}
+function getOrCreateEl(id) {
+  let parentDiv = document.getElementById(id);
+  let created = false;
+  if (!parentDiv) {
+    parentDiv = document.createElement("div");
+    parentDiv.setAttribute("id", id);
+    created = true;
+  }
+  return {
+    created,
+    element: parentDiv
+  };
+}
+var previouslyDismissed = false;
+function updateEmulatorBanner(name3, isRunningEmulator) {
+  if (typeof window === "undefined" || typeof document === "undefined" || !isCloudWorkstation(window.location.host) || emulatorStatus[name3] === isRunningEmulator || emulatorStatus[name3] || // If already set to use emulator, can't go back to prod.
+  previouslyDismissed) {
+    return;
+  }
+  emulatorStatus[name3] = isRunningEmulator;
+  function prefixedId(id) {
+    return `__firebase__banner__${id}`;
+  }
+  const bannerId = "__firebase__banner";
+  const summary = getEmulatorSummary();
+  const showError = summary.prod.length > 0;
+  function tearDown() {
+    const element = document.getElementById(bannerId);
+    if (element) {
+      element.remove();
+    }
+  }
+  function setupBannerStyles(bannerEl) {
+    bannerEl.style.display = "flex";
+    bannerEl.style.background = "#7faaf0";
+    bannerEl.style.position = "fixed";
+    bannerEl.style.bottom = "5px";
+    bannerEl.style.left = "5px";
+    bannerEl.style.padding = ".5em";
+    bannerEl.style.borderRadius = "5px";
+    bannerEl.style.alignItems = "center";
+  }
+  function setupIconStyles(prependIcon, iconId) {
+    prependIcon.setAttribute("width", "24");
+    prependIcon.setAttribute("id", iconId);
+    prependIcon.setAttribute("height", "24");
+    prependIcon.setAttribute("viewBox", "0 0 24 24");
+    prependIcon.setAttribute("fill", "none");
+    prependIcon.style.marginLeft = "-6px";
+  }
+  function setupCloseBtn() {
+    const closeBtn = document.createElement("span");
+    closeBtn.style.cursor = "pointer";
+    closeBtn.style.marginLeft = "16px";
+    closeBtn.style.fontSize = "24px";
+    closeBtn.innerHTML = " &times;";
+    closeBtn.onclick = () => {
+      previouslyDismissed = true;
+      tearDown();
+    };
+    return closeBtn;
+  }
+  function setupLinkStyles(learnMoreLink, learnMoreId) {
+    learnMoreLink.setAttribute("id", learnMoreId);
+    learnMoreLink.innerText = "Learn more";
+    learnMoreLink.href = "https://firebase.google.com/docs/studio/preview-apps#preview-backend";
+    learnMoreLink.setAttribute("target", "__blank");
+    learnMoreLink.style.paddingLeft = "5px";
+    learnMoreLink.style.textDecoration = "underline";
+  }
+  function setupDom() {
+    const banner = getOrCreateEl(bannerId);
+    const firebaseTextId = prefixedId("text");
+    const firebaseText = document.getElementById(firebaseTextId) || document.createElement("span");
+    const learnMoreId = prefixedId("learnmore");
+    const learnMoreLink = document.getElementById(learnMoreId) || document.createElement("a");
+    const prependIconId = prefixedId("preprendIcon");
+    const prependIcon = document.getElementById(prependIconId) || document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    if (banner.created) {
+      const bannerEl = banner.element;
+      setupBannerStyles(bannerEl);
+      setupLinkStyles(learnMoreLink, learnMoreId);
+      const closeBtn = setupCloseBtn();
+      setupIconStyles(prependIcon, prependIconId);
+      bannerEl.append(prependIcon, firebaseText, learnMoreLink, closeBtn);
+      document.body.appendChild(bannerEl);
+    }
+    if (showError) {
+      firebaseText.innerText = `Preview backend disconnected.`;
+      prependIcon.innerHTML = `<g clip-path="url(#clip0_6013_33858)">
+<path d="M4.8 17.6L12 5.6L19.2 17.6H4.8ZM6.91667 16.4H17.0833L12 7.93333L6.91667 16.4ZM12 15.6C12.1667 15.6 12.3056 15.5444 12.4167 15.4333C12.5389 15.3111 12.6 15.1667 12.6 15C12.6 14.8333 12.5389 14.6944 12.4167 14.5833C12.3056 14.4611 12.1667 14.4 12 14.4C11.8333 14.4 11.6889 14.4611 11.5667 14.5833C11.4556 14.6944 11.4 14.8333 11.4 15C11.4 15.1667 11.4556 15.3111 11.5667 15.4333C11.6889 15.5444 11.8333 15.6 12 15.6ZM11.4 13.6H12.6V10.4H11.4V13.6Z" fill="#212121"/>
+</g>
+<defs>
+<clipPath id="clip0_6013_33858">
+<rect width="24" height="24" fill="white"/>
+</clipPath>
+</defs>`;
+    } else {
+      prependIcon.innerHTML = `<g clip-path="url(#clip0_6083_34804)">
+<path d="M11.4 15.2H12.6V11.2H11.4V15.2ZM12 10C12.1667 10 12.3056 9.94444 12.4167 9.83333C12.5389 9.71111 12.6 9.56667 12.6 9.4C12.6 9.23333 12.5389 9.09444 12.4167 8.98333C12.3056 8.86111 12.1667 8.8 12 8.8C11.8333 8.8 11.6889 8.86111 11.5667 8.98333C11.4556 9.09444 11.4 9.23333 11.4 9.4C11.4 9.56667 11.4556 9.71111 11.5667 9.83333C11.6889 9.94444 11.8333 10 12 10ZM12 18.4C11.1222 18.4 10.2944 18.2333 9.51667 17.9C8.73889 17.5667 8.05556 17.1111 7.46667 16.5333C6.88889 15.9444 6.43333 15.2611 6.1 14.4833C5.76667 13.7056 5.6 12.8778 5.6 12C5.6 11.1111 5.76667 10.2833 6.1 9.51667C6.43333 8.73889 6.88889 8.06111 7.46667 7.48333C8.05556 6.89444 8.73889 6.43333 9.51667 6.1C10.2944 5.76667 11.1222 5.6 12 5.6C12.8889 5.6 13.7167 5.76667 14.4833 6.1C15.2611 6.43333 15.9389 6.89444 16.5167 7.48333C17.1056 8.06111 17.5667 8.73889 17.9 9.51667C18.2333 10.2833 18.4 11.1111 18.4 12C18.4 12.8778 18.2333 13.7056 17.9 14.4833C17.5667 15.2611 17.1056 15.9444 16.5167 16.5333C15.9389 17.1111 15.2611 17.5667 14.4833 17.9C13.7167 18.2333 12.8889 18.4 12 18.4ZM12 17.2C13.4444 17.2 14.6722 16.6944 15.6833 15.6833C16.6944 14.6722 17.2 13.4444 17.2 12C17.2 10.5556 16.6944 9.32778 15.6833 8.31667C14.6722 7.30555 13.4444 6.8 12 6.8C10.5556 6.8 9.32778 7.30555 8.31667 8.31667C7.30556 9.32778 6.8 10.5556 6.8 12C6.8 13.4444 7.30556 14.6722 8.31667 15.6833C9.32778 16.6944 10.5556 17.2 12 17.2Z" fill="#212121"/>
+</g>
+<defs>
+<clipPath id="clip0_6083_34804">
+<rect width="24" height="24" fill="white"/>
+</clipPath>
+</defs>`;
+      firebaseText.innerText = "Preview backend running in this workspace.";
+    }
+    firebaseText.setAttribute("id", firebaseTextId);
+  }
+  if (document.readyState === "loading") {
+    window.addEventListener("DOMContentLoaded", setupDom);
+  } else {
+    setupDom();
+  }
+}
 function getUA() {
   if (typeof navigator !== "undefined" && typeof navigator["userAgent"] === "string") {
     return navigator["userAgent"];
@@ -671,7 +851,7 @@ function getModularInstance(service) {
   }
 }
 
-// node_modules/@firebase/component/dist/esm/index.esm2017.js
+// node_modules/@angular/fire/node_modules/@firebase/component/dist/esm/index.esm2017.js
 var Component = class {
   /**
    *
@@ -679,8 +859,8 @@ var Component = class {
    * @param instanceFactory Service factory responsible for creating the public interface
    * @param type whether the service provided by the component is public or private
    */
-  constructor(name2, instanceFactory, type) {
-    this.name = name2;
+  constructor(name3, instanceFactory, type) {
+    this.name = name3;
     this.instanceFactory = instanceFactory;
     this.type = type;
     this.multipleInstances = false;
@@ -707,8 +887,8 @@ var Component = class {
 };
 var DEFAULT_ENTRY_NAME = "[DEFAULT]";
 var Provider = class {
-  constructor(name2, container) {
-    this.name = name2;
+  constructor(name3, container) {
+    this.name = name3;
     this.container = container;
     this.component = null;
     this.instances = /* @__PURE__ */ new Map();
@@ -919,8 +1099,8 @@ function isComponentEager(component) {
   return component.instantiationMode === "EAGER";
 }
 var ComponentContainer = class {
-  constructor(name2) {
-    this.name = name2;
+  constructor(name3) {
+    this.name = name3;
     this.providers = /* @__PURE__ */ new Map();
   }
   /**
@@ -953,12 +1133,12 @@ var ComponentContainer = class {
    * Firebase SDKs providing services should extend NameServiceMapping interface to register
    * themselves.
    */
-  getProvider(name2) {
-    if (this.providers.has(name2)) {
-      return this.providers.get(name2);
+  getProvider(name3) {
+    if (this.providers.has(name3)) {
+      return this.providers.get(name3);
     }
-    const provider = new Provider(name2, this);
-    this.providers.set(name2, provider);
+    const provider = new Provider(name3, this);
+    this.providers.set(name3, provider);
     return provider;
   }
   getProviders() {
@@ -966,16 +1146,16 @@ var ComponentContainer = class {
   }
 };
 
-// node_modules/@firebase/logger/dist/esm/index.esm2017.js
+// node_modules/@angular/fire/node_modules/@firebase/logger/dist/esm/index.esm2017.js
 var instances = [];
 var LogLevel;
-(function(LogLevel2) {
-  LogLevel2[LogLevel2["DEBUG"] = 0] = "DEBUG";
-  LogLevel2[LogLevel2["VERBOSE"] = 1] = "VERBOSE";
-  LogLevel2[LogLevel2["INFO"] = 2] = "INFO";
-  LogLevel2[LogLevel2["WARN"] = 3] = "WARN";
-  LogLevel2[LogLevel2["ERROR"] = 4] = "ERROR";
-  LogLevel2[LogLevel2["SILENT"] = 5] = "SILENT";
+(function(LogLevel3) {
+  LogLevel3[LogLevel3["DEBUG"] = 0] = "DEBUG";
+  LogLevel3[LogLevel3["VERBOSE"] = 1] = "VERBOSE";
+  LogLevel3[LogLevel3["INFO"] = 2] = "INFO";
+  LogLevel3[LogLevel3["WARN"] = 3] = "WARN";
+  LogLevel3[LogLevel3["ERROR"] = 4] = "ERROR";
+  LogLevel3[LogLevel3["SILENT"] = 5] = "SILENT";
 })(LogLevel || (LogLevel = {}));
 var levelStringToEnum = {
   "debug": LogLevel.DEBUG,
@@ -1012,8 +1192,8 @@ var Logger = class {
    *
    * @param name The name that the logs will be associated with
    */
-  constructor(name2) {
-    this.name = name2;
+  constructor(name3) {
+    this.name = name3;
     this._logLevel = defaultLogLevel;
     this._logHandler = defaultLogHandler;
     this._userLogHandler = null;
@@ -1243,13 +1423,13 @@ function wrap(value) {
 var unwrap = (value) => reverseTransformCache.get(value);
 
 // node_modules/idb/build/index.js
-function openDB(name2, version2, {
+function openDB(name3, version3, {
   blocked,
   upgrade,
   blocking,
   terminated
 } = {}) {
-  const request = indexedDB.open(name2, version2);
+  const request = indexedDB.open(name3, version3);
   const openPromise = wrap(request);
   if (upgrade) {
     request.addEventListener("upgradeneeded", (event) => {
@@ -1306,7 +1486,7 @@ replaceTraps((oldTraps) => __spreadProps(__spreadValues({}, oldTraps), {
   has: (target, prop) => !!getMethod(target, prop) || oldTraps.has(target, prop)
 }));
 
-// node_modules/@firebase/app/dist/esm/index.esm2017.js
+// node_modules/@angular/fire/node_modules/@firebase/app/dist/esm/index.esm2017.js
 var PlatformLoggerServiceImpl = class {
   constructor(container) {
     this.container = container;
@@ -1330,7 +1510,7 @@ function isVersionServiceProvider(provider) {
   return (component === null || component === void 0 ? void 0 : component.type) === "VERSION";
 }
 var name$q = "@firebase/app";
-var version$1 = "0.10.13";
+var version$1 = "0.12.3";
 var logger = new Logger("@firebase/app");
 var name$p = "@firebase/app-compat";
 var name$o = "@firebase/analytics-compat";
@@ -1355,10 +1535,10 @@ var name$6 = "@firebase/remote-config-compat";
 var name$5 = "@firebase/storage";
 var name$4 = "@firebase/storage-compat";
 var name$3 = "@firebase/firestore";
-var name$2 = "@firebase/vertexai-preview";
+var name$2 = "@firebase/vertexai";
 var name$1 = "@firebase/firestore-compat";
 var name = "firebase";
-var version = "10.14.1";
+var version = "11.7.3";
 var DEFAULT_ENTRY_NAME2 = "[DEFAULT]";
 var PLATFORM_LOG_STRING = {
   [name$q]: "fire-core",
@@ -1388,6 +1568,7 @@ var PLATFORM_LOG_STRING = {
   [name$1]: "fire-fst-compat",
   [name$2]: "fire-vertex",
   "fire-js": "fire-js",
+  // Platform identifier for JS SDK.
   [name]: "fire-js-all"
 };
 var _apps = /* @__PURE__ */ new Map();
@@ -1418,22 +1599,25 @@ function _registerComponent(component) {
   }
   return true;
 }
-function _getProvider(app, name2) {
+function _getProvider(app, name3) {
   const heartbeatController = app.container.getProvider("heartbeat").getImmediate({
     optional: true
   });
   if (heartbeatController) {
     void heartbeatController.triggerHeartbeat();
   }
-  return app.container.getProvider(name2);
+  return app.container.getProvider(name3);
 }
-function _removeServiceInstance(app, name2, instanceIdentifier = DEFAULT_ENTRY_NAME2) {
-  _getProvider(app, name2).clearInstance(instanceIdentifier);
+function _removeServiceInstance(app, name3, instanceIdentifier = DEFAULT_ENTRY_NAME2) {
+  _getProvider(app, name3).clearInstance(instanceIdentifier);
 }
 function _isFirebaseApp(obj) {
   return obj.options !== void 0;
 }
 function _isFirebaseServerApp(obj) {
+  if (obj === null || obj === void 0) {
+    return false;
+  }
   return obj.settings !== void 0;
 }
 function _clearComponents() {
@@ -1554,11 +1738,29 @@ var FirebaseAppImpl = class {
     }
   }
 };
+function validateTokenTTL(base64Token, tokenName) {
+  const secondPart = base64Decode(base64Token.split(".")[1]);
+  if (secondPart === null) {
+    console.error(`FirebaseServerApp ${tokenName} is invalid: second part could not be parsed.`);
+    return;
+  }
+  const expClaim = JSON.parse(secondPart).exp;
+  if (expClaim === void 0) {
+    console.error(`FirebaseServerApp ${tokenName} is invalid: expiration claim could not be parsed`);
+    return;
+  }
+  const exp = JSON.parse(secondPart).exp * 1e3;
+  const now = (/* @__PURE__ */ new Date()).getTime();
+  const diff = exp - now;
+  if (diff <= 0) {
+    console.error(`FirebaseServerApp ${tokenName} is invalid: the token has expired.`);
+  }
+}
 var FirebaseServerAppImpl = class extends FirebaseAppImpl {
-  constructor(options, serverConfig, name2, container) {
+  constructor(options, serverConfig, name3, container) {
     const automaticDataCollectionEnabled = serverConfig.automaticDataCollectionEnabled !== void 0 ? serverConfig.automaticDataCollectionEnabled : false;
     const config = {
-      name: name2,
+      name: name3,
       automaticDataCollectionEnabled
     };
     if (options.apiKey !== void 0) {
@@ -1570,6 +1772,12 @@ var FirebaseServerAppImpl = class extends FirebaseAppImpl {
     this._serverConfig = Object.assign({
       automaticDataCollectionEnabled
     }, serverConfig);
+    if (this._serverConfig.authIdToken) {
+      validateTokenTTL(this._serverConfig.authIdToken, "authIdToken");
+    }
+    if (this._serverConfig.appCheckToken) {
+      validateTokenTTL(this._serverConfig.appCheckToken, "appCheckToken");
+    }
     this._finalizationRegistry = null;
     if (typeof FinalizationRegistry !== "undefined") {
       this._finalizationRegistry = new FinalizationRegistry(() => {
@@ -1633,19 +1841,19 @@ var SDK_VERSION = version;
 function initializeApp(_options, rawConfig = {}) {
   let options = _options;
   if (typeof rawConfig !== "object") {
-    const name3 = rawConfig;
+    const name4 = rawConfig;
     rawConfig = {
-      name: name3
+      name: name4
     };
   }
   const config = Object.assign({
     name: DEFAULT_ENTRY_NAME2,
     automaticDataCollectionEnabled: false
   }, rawConfig);
-  const name2 = config.name;
-  if (typeof name2 !== "string" || !name2) {
+  const name3 = config.name;
+  if (typeof name3 !== "string" || !name3) {
     throw ERROR_FACTORY.create("bad-app-name", {
-      appName: String(name2)
+      appName: String(name3)
     });
   }
   options || (options = getDefaultAppConfig());
@@ -1655,22 +1863,22 @@ function initializeApp(_options, rawConfig = {}) {
       /* AppError.NO_OPTIONS */
     );
   }
-  const existingApp = _apps.get(name2);
+  const existingApp = _apps.get(name3);
   if (existingApp) {
     if (deepEqual(options, existingApp.options) && deepEqual(config, existingApp.config)) {
       return existingApp;
     } else {
       throw ERROR_FACTORY.create("duplicate-app", {
-        appName: name2
+        appName: name3
       });
     }
   }
-  const container = new ComponentContainer(name2);
+  const container = new ComponentContainer(name3);
   for (const component of _components.values()) {
     container.addComponent(component);
   }
   const newApp = new FirebaseAppImpl(options, config, container);
-  _apps.set(name2, newApp);
+  _apps.set(name3, newApp);
   return newApp;
 }
 function initializeServerApp(_options, _serverAppConfig) {
@@ -1715,14 +1923,14 @@ function initializeServerApp(_options, _serverAppConfig) {
   _serverApps.set(nameString, newApp);
   return newApp;
 }
-function getApp(name2 = DEFAULT_ENTRY_NAME2) {
-  const app = _apps.get(name2);
-  if (!app && name2 === DEFAULT_ENTRY_NAME2 && getDefaultAppConfig()) {
+function getApp(name3 = DEFAULT_ENTRY_NAME2) {
+  const app = _apps.get(name3);
+  if (!app && name3 === DEFAULT_ENTRY_NAME2 && getDefaultAppConfig()) {
     return initializeApp();
   }
   if (!app) {
     throw ERROR_FACTORY.create("no-app", {
-      appName: name2
+      appName: name3
     });
   }
   return app;
@@ -1733,14 +1941,14 @@ function getApps() {
 function deleteApp(app) {
   return __async(this, null, function* () {
     let cleanupProviders = false;
-    const name2 = app.name;
-    if (_apps.has(name2)) {
+    const name3 = app.name;
+    if (_apps.has(name3)) {
       cleanupProviders = true;
-      _apps.delete(name2);
-    } else if (_serverApps.has(name2)) {
+      _apps.delete(name3);
+    } else if (_serverApps.has(name3)) {
       const firebaseServerApp = app;
       if (firebaseServerApp.decRefCount() <= 0) {
-        _serverApps.delete(name2);
+        _serverApps.delete(name3);
         cleanupProviders = true;
       }
     }
@@ -1750,16 +1958,16 @@ function deleteApp(app) {
     }
   });
 }
-function registerVersion(libraryKeyOrName, version2, variant) {
+function registerVersion(libraryKeyOrName, version3, variant) {
   var _a;
   let library = (_a = PLATFORM_LOG_STRING[libraryKeyOrName]) !== null && _a !== void 0 ? _a : libraryKeyOrName;
   if (variant) {
     library += `-${variant}`;
   }
   const libraryMismatch = library.match(/\s|\//);
-  const versionMismatch = version2.match(/\s|\//);
+  const versionMismatch = version3.match(/\s|\//);
   if (libraryMismatch || versionMismatch) {
-    const warning = [`Unable to register library "${library}" with version "${version2}":`];
+    const warning = [`Unable to register library "${library}" with version "${version3}":`];
     if (libraryMismatch) {
       warning.push(`library name "${library}" contains illegal characters (whitespace or "/")`);
     }
@@ -1767,7 +1975,7 @@ function registerVersion(libraryKeyOrName, version2, variant) {
       warning.push("and");
     }
     if (versionMismatch) {
-      warning.push(`version name "${version2}" contains illegal characters (whitespace or "/")`);
+      warning.push(`version name "${version3}" contains illegal characters (whitespace or "/")`);
     }
     logger.warn(warning.join(" "));
     return;
@@ -1776,7 +1984,7 @@ function registerVersion(libraryKeyOrName, version2, variant) {
     `${library}-version`,
     () => ({
       library,
-      version: version2
+      version: version3
     }),
     "VERSION"
     /* ComponentType.VERSION */
@@ -1863,7 +2071,7 @@ function computeKey(app) {
   return `${app.name}!${app.options.appId}`;
 }
 var MAX_HEADER_BYTES = 1024;
-var STORED_HEARTBEAT_RETENTION_MAX_MILLIS = 30 * 24 * 60 * 60 * 1e3;
+var MAX_NUM_STORED_HEARTBEATS = 30;
 var HeartbeatServiceImpl = class {
   constructor(container) {
     this.container = container;
@@ -1902,12 +2110,11 @@ var HeartbeatServiceImpl = class {
             date,
             agent
           });
+          if (this._heartbeatsCache.heartbeats.length > MAX_NUM_STORED_HEARTBEATS) {
+            const earliestHeartbeatIdx = getEarliestHeartbeatIdx(this._heartbeatsCache.heartbeats);
+            this._heartbeatsCache.heartbeats.splice(earliestHeartbeatIdx, 1);
+          }
         }
-        this._heartbeatsCache.heartbeats = this._heartbeatsCache.heartbeats.filter((singleDateHeartbeat) => {
-          const hbTimestamp = new Date(singleDateHeartbeat.date).valueOf();
-          const now = Date.now();
-          return now - hbTimestamp <= STORED_HEARTBEAT_RETENTION_MAX_MILLIS;
-        });
         return this._storage.overwrite(this._heartbeatsCache);
       } catch (e) {
         logger.warn(e);
@@ -2066,6 +2273,20 @@ function countBytes(heartbeatsCache) {
     })
   ).length;
 }
+function getEarliestHeartbeatIdx(heartbeats) {
+  if (heartbeats.length === 0) {
+    return -1;
+  }
+  let earliestHeartbeatIdx = 0;
+  let earliestHeartbeatDate = heartbeats[0].date;
+  for (let i = 1; i < heartbeats.length; i++) {
+    if (heartbeats[i].date < earliestHeartbeatDate) {
+      earliestHeartbeatDate = heartbeats[i].date;
+      earliestHeartbeatIdx = i;
+    }
+  }
+  return earliestHeartbeatIdx;
+}
 function registerCoreComponents(variant) {
   _registerComponent(new Component(
     "platform-logger",
@@ -2085,16 +2306,327 @@ function registerCoreComponents(variant) {
 }
 registerCoreComponents("");
 
+// node_modules/@angular/fire/node_modules/firebase/app/dist/esm/index.esm.js
+var name2 = "firebase";
+var version2 = "11.7.3";
+registerVersion(name2, version2, "app");
+
+// node_modules/@angular/core/fesm2022/rxjs-interop.mjs
+function pendingUntilEvent(injector) {
+  if (injector === void 0) {
+    assertInInjectionContext(pendingUntilEvent);
+    injector = inject(Injector);
+  }
+  const taskService = injector.get(PendingTasks);
+  return (sourceObservable) => {
+    return new Observable((originalSubscriber) => {
+      const removeTask = taskService.add();
+      let cleanedUp = false;
+      function cleanupTask() {
+        if (cleanedUp) {
+          return;
+        }
+        removeTask();
+        cleanedUp = true;
+      }
+      const innerSubscription = sourceObservable.subscribe({
+        next: (v) => {
+          originalSubscriber.next(v);
+          cleanupTask();
+        },
+        complete: () => {
+          originalSubscriber.complete();
+          cleanupTask();
+        },
+        error: (e) => {
+          originalSubscriber.error(e);
+          cleanupTask();
+        }
+      });
+      innerSubscription.add(() => {
+        originalSubscriber.unsubscribe();
+        cleanupTask();
+      });
+      return innerSubscription;
+    });
+  };
+}
+
+// node_modules/@angular/fire/fesm2022/angular-fire.mjs
+var VERSION2 = new Version("ANGULARFIRE2_VERSION");
+function ɵgetDefaultInstanceOf(identifier, provided, defaultApp) {
+  if (provided) {
+    if (provided.length === 1) {
+      return provided[0];
+    }
+    const providedUsingDefaultApp = provided.filter((it) => it.app === defaultApp);
+    if (providedUsingDefaultApp.length === 1) {
+      return providedUsingDefaultApp[0];
+    }
+  }
+  const defaultAppWithContainer = defaultApp;
+  const provider = defaultAppWithContainer.container.getProvider(identifier);
+  return provider.getImmediate({
+    optional: true
+  });
+}
+var ɵgetAllInstancesOf = (identifier, app) => {
+  const apps = app ? [app] : getApps();
+  const instances2 = [];
+  apps.forEach((app2) => {
+    const provider = app2.container.getProvider(identifier);
+    provider.instances.forEach((instance) => {
+      if (!instances2.includes(instance)) {
+        instances2.push(instance);
+      }
+    });
+  });
+  return instances2;
+};
+var LogLevel2;
+(function(LogLevel3) {
+  LogLevel3[LogLevel3["SILENT"] = 0] = "SILENT";
+  LogLevel3[LogLevel3["WARN"] = 1] = "WARN";
+  LogLevel3[LogLevel3["VERBOSE"] = 2] = "VERBOSE";
+})(LogLevel2 || (LogLevel2 = {}));
+var currentLogLevel = isDevMode() && typeof Zone !== "undefined" ? LogLevel2.WARN : LogLevel2.SILENT;
+var ɵZoneScheduler = class {
+  zone;
+  delegate;
+  constructor(zone, delegate = queueScheduler) {
+    this.zone = zone;
+    this.delegate = delegate;
+  }
+  now() {
+    return this.delegate.now();
+  }
+  schedule(work, delay, state) {
+    const targetZone = this.zone;
+    const workInZone = function(state2) {
+      if (targetZone) {
+        targetZone.runGuarded(() => {
+          work.apply(this, [state2]);
+        });
+      } else {
+        work.apply(this, [state2]);
+      }
+    };
+    return this.delegate.schedule(workInZone, delay, state);
+  }
+};
+var ɵAngularFireSchedulers = class _ɵAngularFireSchedulers {
+  outsideAngular;
+  insideAngular;
+  constructor() {
+    const ngZone = inject(NgZone);
+    this.outsideAngular = ngZone.runOutsideAngular(() => new ɵZoneScheduler(typeof Zone === "undefined" ? void 0 : Zone.current));
+    this.insideAngular = ngZone.run(() => new ɵZoneScheduler(typeof Zone === "undefined" ? void 0 : Zone.current, asyncScheduler));
+  }
+  static ɵfac = function ɵAngularFireSchedulers_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _ɵAngularFireSchedulers)();
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _ɵAngularFireSchedulers,
+    factory: _ɵAngularFireSchedulers.ɵfac,
+    providedIn: "root"
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ɵAngularFireSchedulers, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root"
+    }]
+  }], () => [], null);
+})();
+var alreadyWarned = false;
+function warnOutsideInjectionContext(original, logLevel) {
+  if (!alreadyWarned && (currentLogLevel > LogLevel2.SILENT || isDevMode())) {
+    alreadyWarned = true;
+    console.warn("Calling Firebase APIs outside of an Injection context may destabilize your application leading to subtle change-detection and hydration bugs. Find more at https://github.com/angular/angularfire/blob/main/docs/zones.md");
+  }
+  if (currentLogLevel >= logLevel) {
+    console.warn(`Firebase API called outside injection context: ${original.name}`);
+  }
+}
+function runOutsideAngular(fn) {
+  const ngZone = inject(NgZone, {
+    optional: true
+  });
+  if (!ngZone) {
+    return fn();
+  }
+  return ngZone.runOutsideAngular(() => fn());
+}
+function run(fn) {
+  const ngZone = inject(NgZone, {
+    optional: true
+  });
+  if (!ngZone) {
+    return fn();
+  }
+  return ngZone.run(() => fn());
+}
+var zoneWrapFn = (it, taskDone, injector) => {
+  return (...args) => {
+    if (taskDone) {
+      setTimeout(taskDone, 0);
+    }
+    return runInInjectionContext(injector, () => run(() => it.apply(void 0, args)));
+  };
+};
+var ɵzoneWrap = (it, blockUntilFirst, logLevel) => {
+  logLevel ||= blockUntilFirst ? LogLevel2.WARN : LogLevel2.VERBOSE;
+  return function() {
+    let taskDone;
+    const _arguments = arguments;
+    let schedulers;
+    let pendingTasks;
+    let injector;
+    try {
+      schedulers = inject(ɵAngularFireSchedulers);
+      pendingTasks = inject(PendingTasks);
+      injector = inject(EnvironmentInjector);
+    } catch (e) {
+      warnOutsideInjectionContext(it, logLevel);
+      return it.apply(this, _arguments);
+    }
+    for (let i = 0; i < arguments.length; i++) {
+      if (typeof _arguments[i] === "function") {
+        if (blockUntilFirst) {
+          taskDone ||= run(() => pendingTasks.add());
+        }
+        _arguments[i] = zoneWrapFn(_arguments[i], taskDone, injector);
+      }
+    }
+    const ret = runOutsideAngular(() => it.apply(this, _arguments));
+    if (!blockUntilFirst) {
+      if (ret instanceof Observable) {
+        return ret.pipe(subscribeOn(schedulers.outsideAngular), observeOn(schedulers.insideAngular));
+      } else {
+        return run(() => ret);
+      }
+    }
+    if (ret instanceof Observable) {
+      return ret.pipe(subscribeOn(schedulers.outsideAngular), observeOn(schedulers.insideAngular), pendingUntilEvent(injector));
+    } else if (ret instanceof Promise) {
+      return run(() => new Promise((resolve, reject) => {
+        pendingTasks.run(() => ret).then((it2) => runInInjectionContext(injector, () => run(() => resolve(it2))), (reason) => runInInjectionContext(injector, () => run(() => reject(reason))));
+      }));
+    } else if (typeof ret === "function" && taskDone) {
+      return function() {
+        setTimeout(taskDone, 0);
+        return ret.apply(this, arguments);
+      };
+    } else {
+      return run(() => ret);
+    }
+  };
+};
+
+// node_modules/@angular/fire/fesm2022/angular-fire-app.mjs
+var FirebaseApp = class {
+  constructor(app) {
+    return app;
+  }
+};
+var FirebaseApps = class {
+  constructor() {
+    return getApps();
+  }
+};
+var firebaseApp$ = timer(0, 300).pipe(concatMap(() => from(getApps())), distinct());
+function defaultFirebaseAppFactory(provided) {
+  if (provided && provided.length === 1) {
+    return provided[0];
+  }
+  return new FirebaseApp(getApp());
+}
+var PROVIDED_FIREBASE_APPS = new InjectionToken("angularfire2._apps");
+var DEFAULT_FIREBASE_APP_PROVIDER = {
+  provide: FirebaseApp,
+  useFactory: defaultFirebaseAppFactory,
+  deps: [[new Optional(), PROVIDED_FIREBASE_APPS]]
+};
+var FIREBASE_APPS_PROVIDER = {
+  provide: FirebaseApps,
+  deps: [[new Optional(), PROVIDED_FIREBASE_APPS]]
+};
+function firebaseAppFactory(fn) {
+  return (zone, injector) => {
+    const platformId = injector.get(PLATFORM_ID);
+    registerVersion("angularfire", VERSION2.full, "core");
+    registerVersion("angularfire", VERSION2.full, "app");
+    registerVersion("angular", VERSION.full, platformId.toString());
+    const app = zone.runOutsideAngular(() => fn(injector));
+    return new FirebaseApp(app);
+  };
+}
+var FirebaseAppModule = class _FirebaseAppModule {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  constructor(platformId) {
+    registerVersion("angularfire", VERSION2.full, "core");
+    registerVersion("angularfire", VERSION2.full, "app");
+    registerVersion("angular", VERSION.full, platformId.toString());
+  }
+  static ɵfac = function FirebaseAppModule_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _FirebaseAppModule)(ɵɵinject(PLATFORM_ID));
+  };
+  static ɵmod = ɵɵdefineNgModule({
+    type: _FirebaseAppModule
+  });
+  static ɵinj = ɵɵdefineInjector({
+    providers: [DEFAULT_FIREBASE_APP_PROVIDER, FIREBASE_APPS_PROVIDER]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(FirebaseAppModule, [{
+    type: NgModule,
+    args: [{
+      providers: [DEFAULT_FIREBASE_APP_PROVIDER, FIREBASE_APPS_PROVIDER]
+    }]
+  }], () => [{
+    type: Object,
+    decorators: [{
+      type: Inject,
+      args: [PLATFORM_ID]
+    }]
+  }], null);
+})();
+function provideFirebaseApp(fn, ...deps) {
+  return makeEnvironmentProviders([DEFAULT_FIREBASE_APP_PROVIDER, FIREBASE_APPS_PROVIDER, {
+    provide: PROVIDED_FIREBASE_APPS,
+    useFactory: firebaseAppFactory(fn),
+    multi: true,
+    deps: [NgZone, Injector, ɵAngularFireSchedulers, ...deps]
+  }]);
+}
+var deleteApp2 = ɵzoneWrap(deleteApp, true);
+var getApp2 = ɵzoneWrap(getApp, true);
+var getApps2 = ɵzoneWrap(getApps, true);
+var initializeApp2 = ɵzoneWrap(initializeApp, true);
+var initializeServerApp2 = ɵzoneWrap(initializeServerApp, true);
+var onLog2 = ɵzoneWrap(onLog, true);
+var registerVersion2 = ɵzoneWrap(registerVersion, true);
+var setLogLevel3 = ɵzoneWrap(setLogLevel2, true);
+
 export {
+  base64,
   base64Decode,
+  getGlobal,
   getDefaultEmulatorHost,
   getExperimentalSetting,
+  Deferred,
+  isCloudWorkstation,
+  pingServer,
+  updateEmulatorBanner,
   getUA,
   isMobileCordova,
   isCloudflareWorker,
   isBrowserExtension,
   isReactNative,
   isIE,
+  isIndexedDBAvailable,
   FirebaseError,
   ErrorFactory,
   isEmpty,
@@ -2107,6 +2639,7 @@ export {
   Component,
   LogLevel,
   Logger,
+  openDB,
   DEFAULT_ENTRY_NAME2 as DEFAULT_ENTRY_NAME,
   _apps,
   _serverApps,
@@ -2120,14 +2653,26 @@ export {
   _isFirebaseServerApp,
   _clearComponents,
   SDK_VERSION,
-  initializeApp,
-  initializeServerApp,
   getApp,
-  getApps,
-  deleteApp,
   registerVersion,
-  onLog,
-  setLogLevel2 as setLogLevel
+  VERSION2 as VERSION,
+  ɵgetDefaultInstanceOf,
+  ɵgetAllInstancesOf,
+  ɵAngularFireSchedulers,
+  ɵzoneWrap,
+  FirebaseApp,
+  FirebaseApps,
+  firebaseApp$,
+  FirebaseAppModule,
+  provideFirebaseApp,
+  deleteApp2 as deleteApp,
+  getApp2,
+  getApps2 as getApps,
+  initializeApp2 as initializeApp,
+  initializeServerApp2 as initializeServerApp,
+  onLog2 as onLog,
+  registerVersion2,
+  setLogLevel3 as setLogLevel
 };
 /*! Bundled license information:
 
@@ -2161,7 +2706,6 @@ export {
 
 @firebase/util/dist/index.esm2017.js:
 @firebase/util/dist/index.esm2017.js:
-@firebase/util/dist/index.esm2017.js:
   (**
    * @license
    * Copyright 2022 Google LLC
@@ -2183,6 +2727,22 @@ export {
   (**
    * @license
    * Copyright 2017 Google LLC
+   *
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *   http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   *)
+  (**
+   * @license
+   * Copyright 2025 Google LLC
    *
    * Licensed under the Apache License, Version 2.0 (the "License");
    * you may not use this file except in compliance with the License.
@@ -2233,6 +2793,7 @@ export {
    *)
 
 @firebase/util/dist/index.esm2017.js:
+firebase/app/dist/esm/index.esm.js:
   (**
    * @license
    * Copyright 2020 Google LLC
@@ -2317,5 +2878,12 @@ export {
    * See the License for the specific language governing permissions and
    * limitations under the License.
    *)
+
+@angular/core/fesm2022/rxjs-interop.mjs:
+  (**
+   * @license Angular v19.2.11
+   * (c) 2010-2025 Google LLC. https://angular.io/
+   * License: MIT
+   *)
 */
-//# sourceMappingURL=chunk-LAYYNI2E.js.map
+//# sourceMappingURL=chunk-XYQRH4GP.js.map

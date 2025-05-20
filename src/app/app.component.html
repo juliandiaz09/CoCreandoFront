@@ -8,7 +8,7 @@
         <!-- Mostrar enlaces condicionales basados en el estado de autenticación -->
         <ng-container *ngIf="authService.isAuthenticated$ | async; else notAuthenticated">
           <a (click)="navigateTo('/user-profile')">Perfil</a>
-          <a *ngIf="authService.isAdmin()" (click)="navigateTo('/admin')">Admin</a>
+         <!-- <a *ngIf="authService.isAdmin()" (click)="navigateTo('/admin')">Admin</a>-->
           <a (click)="logout()" style="cursor: pointer;">Cerrar Sesión</a>
         </ng-container>
         
