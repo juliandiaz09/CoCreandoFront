@@ -129,3 +129,70 @@ $shadow-color: rgba(0, 0, 0, 0.1);
     }
   }
 }
+
+// Añade esto al final del archivo
+
+.user-notifications {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  position: relative;
+
+  .user-name {
+    font-weight: 500;
+    color: $text-color;
+    margin-right: 0.5rem;
+  }
+
+  .notification-icon {
+    position: relative;
+    cursor: pointer;
+    font-size: 1.2rem;
+
+    .notification-badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background-color: red;
+      color: white;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+    }
+
+    .notifications-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background-color: $white;
+      border: 1px solid $secondary-color;
+      border-radius: 4px;
+      box-shadow: 0 4px 8px $shadow-color;
+      width: 300px;
+      max-height: 400px;
+      overflow-y: auto;
+      z-index: 1001;
+
+      .notification-item {
+        padding: 1rem;
+        border-bottom: 1px solid $secondary-color;
+        cursor: pointer;
+        transition: background-color 0.2s;
+
+        &:hover {
+          background-color: $background-color;
+        }
+      }
+
+      .notification-empty {
+        padding: 1rem;
+        text-align: center;
+        color: lighten($text-color, 30%);
+      }
+    }
+  }
+}

@@ -7,9 +7,23 @@
         
         <!-- Mostrar enlaces condicionales basados en el estado de autenticación -->
         <ng-container *ngIf="authService.isAuthenticated$ | async; else notAuthenticated">
-          <a (click)="navigateTo('/user-profile')">Perfil</a>
-         <!-- <a *ngIf="authService.isAdmin()" (click)="navigateTo('/admin')">Admin</a>-->
-          <a (click)="logout()" style="cursor: pointer;">Cerrar Sesión</a>
+          <!-- Nuevo contenedor para usuario y notificaciones -->
+          <div class="user-notifications">
+            <div class="notification-icon" (click)="toggleNotifications()">
+              🔔
+              <span class="notification-badge" *ngIf="unreadNotifications > 0">{{ unreadNotifications }}</span>
+              <div class="notifications-dropdown" *ngIf="showNotifications">
+                <div class="notification-item" *ngFor="let notification of notifications">
+                  {{ notification.message }}
+                </div>
+                <div class="notification-empty" *ngIf="notifications.length === 0">
+                  No hay notificaciones
+                </div>
+              </div>
+            </div>
+            <a (click)="navigateTo('/user-profile')">{{ authService.currentUser$ | async | userDisplay }}</a>
+            <a (click)="logout()" style="cursor: pointer;">Cerrar Sesión</a>
+          </div>
         </ng-container>
         
         <ng-template #notAuthenticated>

@@ -22,8 +22,10 @@ export class RegisterComponent {
   showPassword: boolean = false;
   showConfirmPassword: boolean = false;
 
-  private authService = inject(AuthService);
-  private router = inject(Router);
+   constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   togglePasswordVisibility(field: 'password' | 'confirmPassword'): void {
     if (field === 'password') {
@@ -58,27 +60,33 @@ export class RegisterComponent {
     this.errorMessage = '';
 
     try {
-      //await this.authService.register(this.email, this.password);
-      await this.authService.login(this.email, this.password);
-      this.router.navigate(['/dashboard']);
+      const success = await this.authService.register(this.name, this.email, this.password);
+      
+      if (success) {
+        this.router.navigate(['/dashboard']);
+      } else {
+        this.errorMessage = 'Error al registrar el usuario';
+      }
     } catch (error: any) {
-      this.errorMessage = this.getFirebaseErrorMessage(error.code);
+      console.error('Registration error:', error);
+      this.errorMessage = this.getErrorMessage(error);
     } finally {
       this.loading = false;
     }
   }
 
-  private getFirebaseErrorMessage(code: string): string {
-    switch (code) {
-      case 'auth/email-already-in-use':
-        return 'El correo ya está registrado';
-      case 'auth/invalid-email':
-        return 'Correo electrónico inválido';
-      case 'auth/weak-password':
-        return 'La contraseña es demasiado débil';
-      default:
-        return 'Error al registrar el usuario';
+  private getErrorMessage(error: any): string {
+    // Si el backend devuelve un mensaje de error específico
+    if (error.error?.message) {
+      return error.error.message;
     }
+    
+    // Manejo de errores genéricos
+    if (error.status === 0) {
+      return 'No se pudo conectar al servidor';
+    }
+    
+    return 'Ocurrió un error durante el registro. Por favor inténtalo más tarde.';
   }
 
   navigateTo(path: string): void {
