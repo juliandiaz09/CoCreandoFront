@@ -112,7 +112,7 @@ export class DashboardComponent implements OnInit {
     return Math.min(100, (project.collected / project.goal) * 100);
   }
 
-  viewDetails(projectId: number): void {
+  viewDetails(projectId: string): void {
     this.router.navigate(['/project', projectId]);
   }
 
@@ -122,7 +122,7 @@ export class DashboardComponent implements OnInit {
     this.loadProjects();
   }
 
-  trackByProjectId(index: number, project: Project): number {
+  trackByProjectId(index: number, project: Project): string {
     return project.id;
   }
 }

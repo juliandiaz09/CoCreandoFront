@@ -1,4 +1,3 @@
-// project-details.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -28,16 +27,20 @@ export class ProjectDetailsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    const projectId = Number(this.route.snapshot.paramMap.get('id'));
+    const projectId = this.route.snapshot.paramMap.get('id'); // Eliminado Number()
     
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
     });
 
-    this.loadProject(projectId);
+    if (projectId) {
+      this.loadProject(projectId);
+    } else {
+      this.router.navigate(['/dashboard']);
+    }
   }
 
-  loadProject(projectId: number): void {
+  loadProject(projectId: string): void {
     this.isLoading = true;
     this.error = null;
     
@@ -78,6 +81,7 @@ export class ProjectDetailsComponent implements OnInit {
       }
     });
   }
+  
   private getDefaultCreator() {
     return {
       name: 'Creador Anónimo',

@@ -1,5 +1,5 @@
 export interface Project {
-    id: number;
+    id: string;
     title: string;
     description: string;
     longDescription?: string;
@@ -9,10 +9,11 @@ export interface Project {
     deadline: Date | string;
     location?: string;
     creator?: {
+      id: string;
       name: string;
       email: string;
-      bio: string;
-      avatar: string;
+      bio?: string;
+      avatar?: string;
     };
     risksAndChallenges?: string;
     rewards?: {
@@ -30,4 +31,5 @@ export interface Project {
       amount: number;
       date: Date | string;
     }[];
+    status?: string; // Nuevo campo para el estado
 }
