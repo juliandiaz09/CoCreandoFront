@@ -4,17 +4,25 @@ import { Observable, catchError, of } from 'rxjs';
 import { Project } from './project.model';
 import ProyectosJson from '../assets/data/projects.json';
 import { environment } from '../environments/environment';
+import { HttpHeaders } from '@angular/common/http';
 
 @Injectable({ providedIn: 'root' })
 export class ProjectService {
   private apiUrl = environment.apiUrl || 'http://localhost:5000';
   private projectsUrl = `${this.apiUrl}/listarProyectos`;
 
+  private httpOptions = {
+    headers: new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*'
+    })
+  };
+
   constructor(private http: HttpClient) {}
 
   getProjects(): Observable<Project[]> {
-    return this.http.get<Project[]>(this.projectsUrl).pipe(
-      catchError((error) => {
+   return this.http.get<Project[]>(`${this.apiUrl}/listarProyectos`, this.httpOptions).pipe(
+    catchError((error) => {
         console.error('Error fetching projects from API:', error);
         console.warn('Using fallback project data due to API error');
         return of(this.getFallbackProjects());
@@ -27,10 +35,10 @@ export class ProjectService {
 }
 
   getProjectById(id: string): Observable<Project | null> {
-    return this.http.get<Project>(`${this.apiUrl}/obtenerProyecto/${id}`).pipe(
+    return this.http.get<Project>(`${this.apiUrl}/obtenerProyecto/${id}`, this.httpOptions).pipe(
       catchError((error) => {
         console.error(`Error fetching project ${id} from API:`, error);
-        const fallbackProject = this.getFallbackProjects().find(p => p.id.toString() === id);
+         const fallbackProject = this.getFallbackProjects().find(p => p.id === id);
         return of(fallbackProject || null);
       })
     );

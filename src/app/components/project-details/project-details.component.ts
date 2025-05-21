@@ -41,46 +41,44 @@ export class ProjectDetailsComponent implements OnInit {
   }
 
   loadProject(projectId: string): void {
-    this.isLoading = true;
-    this.error = null;
-    
-    this.projectService.getProjects().subscribe({
-      next: (projects) => {
-        const foundProject = projects.find(p => p.id === projectId);
-        
-        if (!foundProject) {
-          this.router.navigate(['/dashboard']);
-          return;
-        }
-        
-        // Transformar fechas y asegurar datos opcionales
-        this.project = {
-          ...foundProject,
-          deadline: new Date(foundProject.deadline),
-          longDescription: foundProject.longDescription || `Este proyecto busca ${foundProject.description.toLowerCase()} a través de un enfoque innovador y colaborativo.`,
-          location: foundProject.location || 'Ubicación no especificada',
-          creator: foundProject.creator || this.getDefaultCreator(),
-          risksAndChallenges: foundProject.risksAndChallenges || 'No se han especificado los retos y desafíos de este proyecto.',
-          rewards: foundProject.rewards || this.getDefaultRewards(),
-          updates: (foundProject.updates || []).map((update: any) => ({
-            ...update,
-            date: new Date(update.date)
-          })),
-          supporters: (foundProject.supporters || []).map((supporter: any) => ({
-            ...supporter,
-            date: new Date(supporter.date)
-          }))
-        };
-        
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('Error loading project', err);
-        this.error = 'No se pudo cargar el proyecto. Por favor intenta más tarde.';
-        this.isLoading = false;
+  this.isLoading = true;
+  this.error = null;
+  
+  this.projectService.getProjectById(projectId).subscribe({
+    next: (project) => {
+      if (!project) {
+        this.router.navigate(['/dashboard']);
+        return;
       }
-    });
-  }
+      
+      // Transformar fechas y asegurar datos opcionales
+      this.project = {
+        ...project,
+        deadline: new Date(project.deadline),
+        longDescription: project.longDescription || `Este proyecto busca ${project.description.toLowerCase()} a través de un enfoque innovador y colaborativo.`,
+        location: project.location || 'Ubicación no especificada',
+        creator: project.creator || this.getDefaultCreator(),
+        risksAndChallenges: project.risksAndChallenges || 'No se han especificado los retos y desafíos de este proyecto.',
+        rewards: project.rewards || this.getDefaultRewards(),
+        updates: (project.updates || []).map((update: any) => ({
+          ...update,
+          date: new Date(update.date)
+        })),
+        supporters: (project.supporters || []).map((supporter: any) => ({
+          ...supporter,
+          date: new Date(supporter.date)
+        }))
+      };
+      
+      this.isLoading = false;
+    },
+    error: (err) => {
+      console.error('Error loading project', err);
+      this.error = 'No se pudo cargar el proyecto. Por favor intenta más tarde.';
+      this.isLoading = false;
+    }
+  });
+}
   
   private getDefaultCreator() {
     return {
