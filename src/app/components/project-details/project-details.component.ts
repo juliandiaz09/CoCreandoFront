@@ -27,17 +27,19 @@ export class ProjectDetailsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    const projectId = this.route.snapshot.paramMap.get('id'); // Eliminado Number()
-    
-    this.authService.currentUser$.subscribe(user => {
-      this.currentUser = user;
-    });
+    this.route.paramMap.subscribe(params => {
+      const projectId = params.get('id');
+      
+      this.authService.currentUser$.subscribe(user => {
+        this.currentUser = user;
+      });
 
-    if (projectId) {
-      this.loadProject(projectId);
-    } else {
-      this.router.navigate(['/dashboard']);
-    }
+      if (projectId) {
+        this.loadProject(projectId);
+      } else {
+        this.router.navigate(['/dashboard'], { replaceUrl: true });
+      }
+    });
   }
 
   loadProject(projectId: string): void {
@@ -45,11 +47,11 @@ export class ProjectDetailsComponent implements OnInit {
   this.error = null;
   
   this.projectService.getProjectById(projectId).subscribe({
-    next: (project) => {
-      if (!project) {
-        this.router.navigate(['/dashboard']);
-        return;
-      }
+      next: (project) => {
+        if (!project) {
+          this.router.navigate(['/dashboard'], { replaceUrl: true });
+          return;
+        }
       
       // Transformar fechas y asegurar datos opcionales
       this.project = {

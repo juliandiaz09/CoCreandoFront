@@ -3,8 +3,6 @@
     <div class="container">
       <span class="logo">CoCreando</span>
       <div class="nav-links">
-        <a (click)="navigateTo('/dashboard')">Proyectos</a>
-        
         <!-- Mostrar enlaces condicionales basados en el estado de autenticación -->
         <ng-container *ngIf="authService.isAuthenticated$ | async; else notAuthenticated">
           <!-- Nuevo contenedor para usuario y notificaciones -->
@@ -21,11 +19,11 @@
                 </div>
               </div>
             </div>
+            <a (click)="navigateTo('/dashboard')">Proyectos</a>
             <a (click)="navigateTo('/user-profile')">{{ authService.currentUser$ | async | userDisplay }}</a>
             <a (click)="logout()" style="cursor: pointer;">Cerrar Sesión</a>
           </div>
         </ng-container>
-        
         <ng-template #notAuthenticated>
           <a (click)="navigateTo('/login')">Iniciar Sesión</a>
           <a (click)="navigateTo('/register')">Registrarse</a>

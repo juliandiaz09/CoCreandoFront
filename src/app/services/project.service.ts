@@ -1,45 +1,38 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, of } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable, catchError, of, switchMap } from 'rxjs';
 import { Project } from './project.model';
-import ProyectosJson from '../assets/data/projects.json';
 import { environment } from '../environments/environment';
-import { HttpHeaders } from '@angular/common/http';
+import { Auth, authState, idToken } from '@angular/fire/auth';
 
 @Injectable({ providedIn: 'root' })
 export class ProjectService {
   private apiUrl = environment.apiUrl || 'http://localhost:5000';
-  private projectsUrl = `${this.apiUrl}/listarProyectos`;
-
-  private httpOptions = {
-    headers: new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*'
-    })
-  };
 
   constructor(private http: HttpClient) {}
 
   getProjects(): Observable<Project[]> {
-   return this.http.get<Project[]>(`${this.apiUrl}/listarProyectos`, this.httpOptions).pipe(
+  return this.http.get<Project[]>(`${this.apiUrl}/proyecto/listarProyectos`, {
+    withCredentials: true
+  }).pipe(
     catchError((error) => {
-        console.error('Error fetching projects from API:', error);
-        console.warn('Using fallback project data due to API error');
-        return of(this.getFallbackProjects());
-      })
-    );
-  }
+      console.error('Error fetching projects from API:', error);
+      return of([]);
+    })
+  );
+}
 
   getProjectAnalytics(projectId: string): Observable<any> {
   return this.http.get(`${this.apiUrl}/analytics/${projectId}`);
 }
 
   getProjectById(id: string): Observable<Project | null> {
-    return this.http.get<Project>(`${this.apiUrl}/obtenerProyecto/${id}`, this.httpOptions).pipe(
+    return this.http.get<Project>(`${this.apiUrl}/proyecto/obtenerProyecto/${id}`, {
+      withCredentials: true
+    }).pipe(
       catchError((error) => {
-        console.error(`Error fetching project ${id} from API:`, error);
-         const fallbackProject = this.getFallbackProjects().find(p => p.id === id);
-        return of(fallbackProject || null);
+        console.error(`Error fetching project ${id}:`, error);
+        return of(null);
       })
     );
   }
@@ -69,33 +62,5 @@ export class ProjectService {
         throw error;
       })
     );
-  }
-
-  private getFallbackProjects(): Project[] {
-    try {
-      if (!ProyectosJson || ProyectosJson.length === 0) {
-        throw new Error('Fallback JSON data is empty or invalid');
-      }
-      // Mapear los datos del JSON local al modelo de Project
-      return ProyectosJson.map((p: any) => ({
-        id: p.id,
-        title: p.title,
-        description: p.description,
-        longDescription: p.longDescription,
-        goal: p.goal,
-        collected: p.collected,
-        category: p.category,
-        deadline: p.deadline,
-        location: p.location,
-        creator: p.creator,
-        risksAndChallenges: p.risksAndChallenges,
-        rewards: p.rewards,
-        updates: p.updates,
-        supporters: p.supporters
-      }));
-    } catch (error) {
-      console.error('Error loading fallback projects:', error);
-      return [];
-    }
   }
 }

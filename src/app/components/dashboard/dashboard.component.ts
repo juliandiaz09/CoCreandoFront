@@ -44,10 +44,9 @@ export class DashboardComponent implements OnInit {
       next: (projects) => {
         if (projects.length === 0) {
           this.error = 'No se encontraron proyectos.';
-        } else {
-          this.projects = this.parseProjects(projects);
-          this.applyFilters();
         }
+        this.projects = this.parseProjects(projects);
+        this.applyFilters();
         this.isLoading = false;
       },
       error: (err) => {
