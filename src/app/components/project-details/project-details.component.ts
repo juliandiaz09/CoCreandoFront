@@ -13,6 +13,7 @@ import { AuthService } from '../../services/auth.service';
   styleUrls: ['./project-details.component.scss']
 })
 export class ProjectDetailsComponent implements OnInit {
+  projectId: string = '';
   project: any = null;
   investmentAmount: number = 0;
   currentUser: any;
@@ -81,7 +82,13 @@ export class ProjectDetailsComponent implements OnInit {
     }
   });
 }
-  
+  navigateAnalisis(): void {
+    this.route.paramMap.subscribe(params => {
+      const projectId = params.get('id');
+    this.router.navigate(['/project-analytics', projectId]);
+    });
+  }
+
   private getDefaultCreator() {
     return {
       name: 'Creador Anónimo',

@@ -88,12 +88,6 @@ export class ProjectAnalyticsComponent implements OnInit {
         
         this.project = project;
         
-        if (project.creator?.email !== this.currentUserEmail) {
-          this.error = 'No tienes permiso para ver estos análisis';
-          this.isLoading = false;
-          return;
-        }
-        
         this.generateAnalytics(project);
       },
       error: (err) => {
