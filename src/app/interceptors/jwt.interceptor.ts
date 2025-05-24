@@ -8,7 +8,8 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const router = inject(Router);
   
-  const token = authService;
+  // Obtén el token correctamente
+  const token = authService.getToken();
   
   if (token) {
     req = req.clone({

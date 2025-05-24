@@ -1,14 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, NgModule, OnInit } from '@angular/core';
 import { UserService } from '../../services/user.service';
 import { ProjectService } from '../../services/project.service';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-user-profile',
   templateUrl: './user-profile.component.html',
-  styleUrls: ['./user-profile.component.scss']
+  styleUrls: ['./user-profile.component.scss'],
+  imports: [NgIf] 
 })
+
+
+
 export class UserProfileComponent implements OnInit {
   user: any = null;
   userProjects: any[] = [];
@@ -33,15 +38,19 @@ export class UserProfileComponent implements OnInit {
 
     // Obtener el usuario actual
     this.authService.currentUser$.subscribe(currentUser => {
-      if (!currentUser) {
+      const userStr = localStorage.getItem("custom_user");
+      console.log(userStr)
+
+      if (!userStr) {
         this.router.navigate(['/login']);
         return;
       }
 
-      this.isCurrentUser = true;
+      const parsedUser = JSON.parse(userStr);
+      const userId = parsedUser.id;
       
       // Obtener detalles del usuario
-      this.userService.getCurrentUser().subscribe({
+      this.userService.getCurrentUser(userId).subscribe({
         next: (userData) => {
           this.user = userData;
           

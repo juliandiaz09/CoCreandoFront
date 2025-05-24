@@ -31,13 +31,16 @@ async login(email: string, password: string): Promise<boolean> {
     if (response && response.success) {
       const userData = {
         email: response.user?.email || email,
-        name: response.user?.name || email.split('@')[0], // Usa el nombre o la parte antes del @
-        id: response.user?.id || ''
+        name: response.user?.name || email.split('@')[0],
+        id: response.user?.id || '',
+        token: response.token  // 👈 token de Firebase
       };
       
       this.loggedIn.next(true);
       this.currentUser.next(userData);
       localStorage.setItem('custom_user', JSON.stringify(userData));
+      console.log('token auth service --->', response.token);
+      localStorage.setItem('token', response.token);  // 👈 guardar token por separado (opcional)
       return true;
     } else {
       console.error('Login failed:', response);
@@ -104,5 +107,14 @@ async register(name: string, email: string, password: string): Promise<boolean> 
 
   get currentUser$() {
     return this.currentUser.asObservable();
+  }
+  
+  getToken(): string | null {
+    const userDataRaw = localStorage.getItem('custom_user');
+    if (userDataRaw) {
+      const userData = JSON.parse(userDataRaw);
+      return userData?.token || null;
+    }
+    return null;
   }
 }
