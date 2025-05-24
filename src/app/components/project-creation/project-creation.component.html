@@ -1,100 +1,224 @@
+<!-- project-creation.component.html -->
 <div class="creation-container">
   <h2>Crear Nuevo Proyecto</h2>
   
-  <form [formGroup]="projectForm" (ngSubmit)="onSubmit()">
-    <div class="form-group">
-      <label for="title">Título del Proyecto *</label>
-      <input 
-        type="text" 
-        id="title" 
-        formControlName="title"
-        placeholder="Nombre de tu proyecto">
-      <div *ngIf="projectForm.get('title')?.invalid && projectForm.get('title')?.touched" 
-           class="error-message">
-        El título debe tener al menos 5 caracteres
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label for="description">Descripción *</label>
-      <textarea 
-        id="description" 
-        formControlName="description"
-        placeholder="Describe tu proyecto en detalle"></textarea>
-      <div *ngIf="projectForm.get('description')?.invalid && projectForm.get('description')?.touched" 
-           class="error-message">
-        La descripción debe tener al menos 20 caracteres
-      </div>
-    </div>
-
-    <div class="form-row">
+  <form [formGroup]="projectForm" (ngSubmit)="onSubmit()" class="project-form">
+    <!-- Sección Básica -->
+    <div class="form-section">
+      <h3>Información Básica</h3>
       <div class="form-group">
-        <label for="goal">Meta de financiación ($) *</label>
-        <input 
-          type="number" 
-          id="goal" 
-          formControlName="goal"
-          min="100">
-        <div *ngIf="projectForm.get('goal')?.invalid && projectForm.get('goal')?.touched" 
-             class="error-message">
-          La meta mínima es $100
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="category">Categoría *</label>
-        <select id="category" formControlName="category">
-          <option value="">Selecciona una categoría</option>
-          <option *ngFor="let cat of categories" [value]="cat">{{cat}}</option>
-        </select>
-        <div *ngIf="projectForm.get('category')?.invalid && projectForm.get('category')?.touched" 
-             class="error-message">
-          Debes seleccionar una categoría
-        </div>
-      </div>
-    </div>
-
-    <div class="form-row">
-      <div class="form-group">
-        <label for="deadline">Fecha Límite *</label>
-        <input 
-          type="date" 
-          id="deadline" 
-          formControlName="deadline">
-        <div *ngIf="projectForm.get('deadline')?.invalid && projectForm.get('deadline')?.touched" 
-             class="error-message">
-          Debes establecer una fecha límite
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="location">Ubicación</label>
+        <label for="title">Título del Proyecto *</label>
         <input 
           type="text" 
-          id="location" 
-          formControlName="location"
-          placeholder="Ciudad, País">
+          id="title" 
+          formControlName="title"
+          placeholder="Nombre de tu proyecto">
+        <div *ngIf="projectForm.get('title')?.invalid && projectForm.get('title')?.touched" 
+             class="error-message">
+          El título debe tener al menos 5 caracteres
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Descripción Corta *</label>
+        <textarea 
+          id="description" 
+          formControlName="description"
+          placeholder="Describe tu proyecto brevemente (mínimo 20 caracteres)"></textarea>
+        <div *ngIf="projectForm.get('description')?.invalid && projectForm.get('description')?.touched" 
+             class="error-message">
+          La descripción debe tener al menos 20 caracteres
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="longDescription">Descripción Detallada *</label>
+        <textarea 
+          id="longDescription" 
+          formControlName="longDescription"
+          placeholder="Explica tu proyecto en detalle (mínimo 100 caracteres)"></textarea>
+        <div *ngIf="projectForm.get('longDescription')?.invalid && projectForm.get('longDescription')?.touched" 
+             class="error-message">
+          La descripción detallada debe tener al menos 100 caracteres
+        </div>
       </div>
     </div>
 
-    <div class="form-group">
-      <label for="risks">Retos y desafíos</label>
-      <textarea 
-        id="risks" 
-        formControlName="risksAndChallenges"
-        placeholder="Describe los posibles retos de tu proyecto"></textarea>
+    <!-- Sección Financiación y Categoría -->
+    <div class="form-section">
+      <h3>Financiación y Categoría</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="goal">Meta de financiación ($) *</label>
+          <input 
+            type="number" 
+            id="goal" 
+            formControlName="goal"
+            min="100">
+          <div *ngIf="projectForm.get('goal')?.invalid && projectForm.get('goal')?.touched" 
+               class="error-message">
+            La meta mínima es $100
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="category">Categoría *</label>
+          <select id="category" formControlName="category">
+            <option value="">Selecciona una categoría</option>
+            <option *ngFor="let cat of categories" [value]="cat">{{cat}}</option>
+          </select>
+          <div *ngIf="projectForm.get('category')?.invalid && projectForm.get('category')?.touched" 
+               class="error-message">
+            Debes seleccionar una categoría
+          </div>
+        </div>
+      </div>
     </div>
 
-    <button 
-      type="submit" 
-      class="button-primary"
-      [disabled]="projectForm.invalid || isLoading">
-      <span *ngIf="!isLoading">Publicar Proyecto</span>
-      <span *ngIf="isLoading">Enviando...</span>
-    </button>
+    <!-- Sección Fechas y Ubicación -->
+    <div class="form-section">
+      <h3>Fechas y Ubicación</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="deadline">Fecha Límite *</label>
+          <input 
+            type="date" 
+            id="deadline" 
+            formControlName="deadline">
+          <div *ngIf="projectForm.get('deadline')?.invalid && projectForm.get('deadline')?.touched" 
+               class="error-message">
+            Debes establecer una fecha límite
+          </div>
+        </div>
 
-    <div *ngIf="error" class="error-message">
-      {{error}}
+        <div class="form-group">
+          <label for="location">Ubicación *</label>
+          <input 
+            type="text" 
+            id="location" 
+            formControlName="location"
+            placeholder="Ciudad, País">
+          <div *ngIf="projectForm.get('location')?.invalid && projectForm.get('location')?.touched" 
+               class="error-message">
+            Debes especificar una ubicación
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección Recompensas -->
+    <div class="form-section">
+      <h3>Recompensas para Patrocinadores</h3>
+      <div formArrayName="rewards">
+        <div *ngFor="let reward of rewards.controls; let i = index" [formGroupName]="i" class="reward-item">
+          <div class="form-row">
+            <div class="form-group">
+              <label [for]="'reward-title-' + i">Título de la Recompensa *</label>
+              <input 
+                type="text" 
+                [id]="'reward-title-' + i"
+                formControlName="title"
+                placeholder="Ej: Certificado digital">
+            </div>
+            
+            <div class="form-group">
+              <label [for]="'reward-amount-' + i">Monto Mínimo ($) *</label>
+              <input 
+                type="number" 
+                [id]="'reward-amount-' + i"
+                formControlName="minimumAmount"
+                min="1">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label [for]="'reward-desc-' + i">Descripción *</label>
+            <textarea 
+              [id]="'reward-desc-' + i"
+              formControlName="description"
+              placeholder="Describe qué recibirá el patrocinador"></textarea>
+          </div>
+          
+          <button type="button" class="button-remove" (click)="removeReward(i)" *ngIf="rewards.length > 1">
+            Eliminar Recompensa
+          </button>
+        </div>
+      </div>
+      <button type="button" class="button-add" (click)="addReward()">
+        + Añadir Otra Recompensa
+      </button>
+    </div>
+
+    <!-- Sección Actualizaciones -->
+    <div class="form-section">
+      <h3>Actualizaciones Iniciales</h3>
+      <div formArrayName="updates">
+        <div *ngFor="let update of updates.controls; let i = index" [formGroupName]="i" class="update-item">
+          <div class="form-row">
+            <div class="form-group">
+              <label [for]="'update-title-' + i">Título *</label>
+              <input 
+                type="text" 
+                [id]="'update-title-' + i"
+                formControlName="title"
+                placeholder="Ej: Campaña lanzada">
+            </div>
+            
+            <div class="form-group">
+              <label [for]="'update-date-' + i">Fecha *</label>
+              <input 
+                type="date" 
+                [id]="'update-date-' + i"
+                formControlName="date">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label [for]="'update-content-' + i">Contenido *</label>
+            <textarea 
+              [id]="'update-content-' + i"
+              formControlName="content"
+              placeholder="Detalles de la actualización"></textarea>
+          </div>
+          
+          <button type="button" class="button-remove" (click)="removeUpdate(i)" *ngIf="updates.length > 1">
+            Eliminar Actualización
+          </button>
+        </div>
+      </div>
+      <button type="button" class="button-add" (click)="addUpdate()">
+        + Añadir Otra Actualización
+      </button>
+    </div>
+
+    <!-- Sección Riesgos -->
+    <div class="form-section">
+      <h3>Riesgos y Desafíos *</h3>
+      <div class="form-group">
+        <textarea 
+          id="risks" 
+          formControlName="risksAndChallenges"
+          placeholder="Describe los posibles retos de tu proyecto y cómo planeas superarlos"></textarea>
+        <div *ngIf="projectForm.get('risksAndChallenges')?.invalid && projectForm.get('risksAndChallenges')?.touched" 
+             class="error-message">
+          Debes describir los riesgos y desafíos de tu proyecto
+        </div>
+      </div>
+    </div>
+
+    <!-- Botón de envío -->
+    <div class="form-actions">
+      <button 
+        type="submit" 
+        class="button-primary"
+        [disabled]="projectForm.invalid || isLoading">
+        <span *ngIf="!isLoading">Publicar Proyecto</span>
+        <span *ngIf="isLoading">Enviando...</span>
+      </button>
+
+      <div *ngIf="error" class="error-message">
+        {{error}}
+      </div>
     </div>
   </form>
 </div>
