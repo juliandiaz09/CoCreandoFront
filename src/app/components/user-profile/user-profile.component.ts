@@ -61,7 +61,8 @@ export class UserProfileComponent implements OnInit {
           return of({
             ...currentUser,
             rol: currentUser.rol || 'usuario',
-            status: currentUser.status || 'active'
+            status: currentUser.status || 'active',
+            email_verified: currentUser.email_verified || 'False'
           });
         }
         return throwError(() => error);

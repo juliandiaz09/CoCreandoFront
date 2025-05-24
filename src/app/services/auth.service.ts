@@ -10,6 +10,7 @@ export class AuthService {
   private loggedIn = new BehaviorSubject<boolean>(false);
   private currentUser = new BehaviorSubject<any | null>(null);
 
+
    constructor(private http: HttpClient, private router: Router) {
     // Cargar usuario desde localStorage al iniciar
     const savedUser = localStorage.getItem('custom_user');
@@ -18,7 +19,7 @@ export class AuthService {
       this.loggedIn.next(true);
     }
   }
-  // auth.service.ts
+
 async login(email: string, password: string): Promise<boolean> {
   try {
     const response: any = await this.http.post('http://127.0.0.1:5000/login', {
@@ -107,6 +108,9 @@ async register(name: string, email: string, password: string): Promise<boolean> 
     this.router.navigate(['/login']);
   }
 
+  get isAuthenticated(): boolean {
+  return this.loggedIn.value;
+}
   get isAuthenticated$() {
     return this.loggedIn.asObservable();
   }

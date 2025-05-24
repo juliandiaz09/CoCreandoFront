@@ -3,7 +3,7 @@ import { LoginComponent } from './components/login/login.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { AdminComponent } from './components/admin/admin.component';
 import { UserProfileComponent } from './components/user-profile/user-profile.component';
-import { AuthGuard } from './guards/auth.guard';
+import { AuthGuard, ProjectCreationGuard } from './guards/auth.guard';
 import { AdminGuard } from './guards/admin.guard';
 import { RegisterComponent } from './components/register/register.component';
 import { ProjectDetailsComponent } from './components/project-details/project-details.component';
@@ -28,7 +28,7 @@ export const routes: Routes = [
   { 
     path: 'user-profile', 
     component: UserProfileComponent, 
-    canActivate: [AuthGuard] 
+    canActivate: [AuthGuard]
   },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
@@ -40,7 +40,7 @@ export const routes: Routes = [
   { 
     path: 'project-creation', 
     component: ProjectCreationComponent,
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard, ProjectCreationGuard]
   },
   { 
     path: 'project-analytics/:id', 

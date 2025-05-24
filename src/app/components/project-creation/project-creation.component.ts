@@ -4,11 +4,19 @@ import { ProjectService } from '../../services/project.service';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { take } from 'rxjs/operators';
 
 interface ProjectCreationResponse {
   projectId?: string;
   mensaje?: string;
   [key: string]: any;
+}
+interface CurrentUser {
+  name: string;
+  email: string;
+  bio?: string;
+  avatar?: string;
+  [key: string]: any; // Para otras propiedades que pueda tener
 }
 
 @Component({
@@ -88,14 +96,16 @@ export class ProjectCreationComponent {
 
 
  onSubmit() {
-  if (this.projectForm.invalid) {
-    return;
+  if (this.projectForm.invalid || this.isLoading) {
+    return; // Evita múltiples envíos
   }
 
   this.isLoading = true;
   this.error = null;
 
-  this.authService.currentUser$.subscribe(currentUser => {
+  this.authService.currentUser$.pipe(
+    take(1)
+  ).subscribe((currentUser: CurrentUser | null) => {
     if (!currentUser) {
       this.error = 'Debes iniciar sesión para crear un proyecto';
       this.isLoading = false;
@@ -135,11 +145,16 @@ export class ProjectCreationComponent {
       supporters: []
     };
 
-    this.projectService.createProject(projectData).subscribe({
+    this.projectService.createProject(projectData).pipe(
+      take(1)
+    ).subscribe({
       next: (res: any) => {
+        this.projectForm.reset();
         const projectId = res?.projectId || '';
         if (projectId) {
-          this.router.navigate(['/project', projectId]);
+          this.router.navigate(['/project', projectId], {
+            replaceUrl: true
+          });
         } else {
           this.router.navigate(['/user-profile']);
         }
