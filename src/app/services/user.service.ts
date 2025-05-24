@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
+import { Observable, throwError, of } from 'rxjs';  // <-- Importaciones añadidas
+import { catchError } from 'rxjs/operators';
 import { environment } from '../environments/environment';
 
 @Injectable({
@@ -14,23 +15,43 @@ export class UserService {
   constructor(private http: HttpClient) {}
 
   getCurrentUser(id: string): Observable<any> {
-    const userDataRaw = localStorage.getItem('custom_user');
-    const userData = userDataRaw ? JSON.parse(userDataRaw) : null;
-    const token = userData?.token;
-
-    console.log("Estructura completa de userData:", userData);
-    console.log("Tipo de token:", typeof userData.token);
-    console.log("Contenido de token:", userData.token);
-
-    const headers = new HttpHeaders({
-      'Authorization': 'Bearer ' + String(token) // Fuerza la conversión a string
-    });
-
- 
-    console.log('HEADERS:', headers.get('Authorization'));
-
-    return this.http.get(`${this.apiUrl}/usuario/obtenerUsuario/${id}`, { headers });
+  const userDataRaw = localStorage.getItem('custom_user');
+  if (!userDataRaw) {
+    return throwError(() => new Error('No user data available'));
   }
+
+  const userData = JSON.parse(userDataRaw);
+  const token = userData?.token;
+
+  if (!token) {
+    return throwError(() => new Error('No authentication token available'));
+  }
+
+  const headers = new HttpHeaders({
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json'
+  });
+
+  return this.http.get(`${this.apiUrl}/usuario/obtenerUsuario/${id}`, { 
+    headers,
+    withCredentials: true
+  }).pipe(
+    catchError((error: HttpErrorResponse) => {
+      console.error('Error fetching user:', error);
+      if (error.status === 404) {
+        const basicUser = {
+          uid: id,
+          email: userData.email,
+          name: userData.name || userData.email.split('@')[0],
+          rol: 'usuario',
+          status: 'active'
+        };
+        return of(basicUser);
+      }
+      return throwError(() => error);
+    })
+  );
+}
 
   updateUser(id: string, data: any): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}`, data);

@@ -16,7 +16,9 @@
       <div class="profile-info">
         <h1>{{user.name}}</h1>
         <p class="email">{{user.email}}</p>
-        <p class="bio">{{user.bio || 'No hay biografía disponible'}}</p>
+        <p class="status">Estado: {{user.status || 'active'}}</p>
+        <p class="role">Rol: {{user.rol || 'usuario'}}</p>
+        <p class="login-count">Visitas: {{user.login_count || 0}}</p>
       </div>
     </div>
 
@@ -29,19 +31,22 @@
     </div>
 
     <div *ngIf="userProjects.length > 0" class="projects-section">
-      <h2>Mis Proyectos</h2>
+      <h2>Mis Proyectos ({{userProjects.length}})</h2>
       <div class="projects-grid">
         <div *ngFor="let project of userProjects" class="project-card">
           <h3>{{project.title}}</h3>
+          <p class="category">{{project.category}}</p>
           <p>{{project.description}}</p>
           <div class="project-stats">
-            <span>Recaudado: ${{project.collected}} / ${{project.goal}}</span>
+            <span>Recaudado: ${{project.collected | number}} / ${{project.goal | number}}</span>
             <span>{{(project.collected / project.goal * 100).toFixed(0)}}%</span>
           </div>
-          <button class="button-secondary" 
-                  (click)="navigateToProjectAnalytics(project.id)">
-            Ver Análisis
-          </button>
+          <div class="project-actions">
+            <button class="button-secondary" 
+                    (click)="navigateToProjectAnalytics(project.id)">
+              Ver Análisis
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -53,4 +58,4 @@
       </button>
     </div>
   </div>
-</div> 
+</div>

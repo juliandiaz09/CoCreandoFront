@@ -32,8 +32,11 @@ async login(email: string, password: string): Promise<boolean> {
       const userData = {
         email: response.user?.email || email,
         name: response.user?.name || email.split('@')[0],
-        id: response.user?.id || '',
-        token: response.token  // 👈 token de Firebase
+        id: response.user?.uid || response.user?.id || '', // Asegurar compatibilidad
+        uid: response.user?.uid || response.user?.id || '', // Campo adicional
+        token: response.token,
+        rol: response.user?.rol || 'usuario', // Valor por defecto
+        status: response.user?.status || 'active' // Valor por defecto
       };
       
       this.loggedIn.next(true);
@@ -68,7 +71,6 @@ async login(email: string, password: string): Promise<boolean> {
 
 async register(name: string, email: string, password: string): Promise<boolean> {
   try {
-    // Cambiar la URL a '/registro'
     const response: any = await this.http.post('http://127.0.0.1:5000/registro', {
       name,
       email,

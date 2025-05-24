@@ -1,19 +1,22 @@
-import { Component, NgModule, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { UserService } from '../../services/user.service';
 import { ProjectService } from '../../services/project.service';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
-import { NgIf } from '@angular/common';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Observable, throwError, of, lastValueFrom } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+
 
 @Component({
   selector: 'app-user-profile',
   templateUrl: './user-profile.component.html',
   styleUrls: ['./user-profile.component.scss'],
-  imports: [NgIf] 
+  imports: [CommonModule, FormsModule, ReactiveFormsModule]
 })
-
-
-
 export class UserProfileComponent implements OnInit {
   user: any = null;
   userProjects: any[] = [];
@@ -32,50 +35,68 @@ export class UserProfileComponent implements OnInit {
     this.loadUserProfile();
   }
 
-  loadUserProfile(): void {
-    this.isLoading = true;
-    this.error = null;
+ async loadUserProfile(): Promise<void> {
+  this.isLoading = true;
+  this.error = null;
 
-    // Obtener el usuario actual
-    this.authService.currentUser$.subscribe(currentUser => {
-      const userStr = localStorage.getItem("custom_user");
-      console.log(userStr)
+  try {
+    const userStr = localStorage.getItem('custom_user');
+    if (!userStr) {
+      this.router.navigate(['/login']);
+      return;
+    }
 
-      if (!userStr) {
-        this.router.navigate(['/login']);
-        return;
-      }
+    const currentUser = JSON.parse(userStr);
+    const userId = currentUser.id || currentUser.uid;
 
-      const parsedUser = JSON.parse(userStr);
-      const userId = parsedUser.id;
-      
-      // Obtener detalles del usuario
-      this.userService.getCurrentUser(userId).subscribe({
-        next: (userData) => {
-          this.user = userData;
-          
-          // Obtener proyectos del usuario si es creador
-          this.projectService.getProjects().subscribe({
-            next: (projects) => {
-              this.userProjects = projects.filter((p: any) => 
-                p.creator?.email === this.user.email
-              );
-              this.isLoading = false;
-            },
-            error: (err) => {
-              console.error('Error loading projects', err);
-              this.isLoading = false;
-            }
+    if (!userId) {
+      throw new Error('ID de usuario no disponible');
+    }
+
+    // Obtener detalles del usuario usando lastValueFrom
+    const user$ = this.userService.getCurrentUser(userId).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error loading user:', error);
+        if (currentUser) {
+          return of({
+            ...currentUser,
+            rol: currentUser.rol || 'usuario',
+            status: currentUser.status || 'active'
           });
-        },
-        error: (err) => {
-          console.error('Error loading user', err);
-          this.error = 'Error al cargar el perfil';
-          this.isLoading = false;
         }
-      });
-    });
+        return throwError(() => error);
+      })
+    );
+    
+    this.user = await lastValueFrom(user$);
+
+    // Verificar si es el usuario actual
+    this.isCurrentUser = currentUser.email === this.user.email;
+
+    // Obtener proyectos usando lastValueFrom
+    const projects$ = this.projectService.getProjects().pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error loading projects:', error);
+        return of([]);
+      })
+    );
+    
+    const allProjects = await lastValueFrom(projects$);
+    this.userProjects = (allProjects || []).filter((project: any) => 
+      project.creator && project.creator.email === this.user.email
+    );
+
+  } catch (err: any) {
+    console.error('Error loading profile:', err);
+    this.error = 'Error al cargar el perfil. Por favor intenta nuevamente.';
+    if (err.status === 401) {
+      this.authService.logout();
+      this.router.navigate(['/login']);
+    }
+  } finally {
+    this.isLoading = false;
   }
+}
 
   navigateToProjectCreation(): void {
     this.router.navigate(['/project-creation']);
