@@ -65,10 +65,11 @@ async login(email: string, password: string): Promise<boolean> {
     }
   }
 
-  // auth.service.ts
+
 async register(name: string, email: string, password: string): Promise<boolean> {
   try {
-    const response: any = await this.http.post('http://127.0.0.1:5000/register', {
+    // Cambiar la URL a '/registro'
+    const response: any = await this.http.post('http://127.0.0.1:5000/registro', {
       name,
       email,
       password
@@ -77,13 +78,16 @@ async register(name: string, email: string, password: string): Promise<boolean> 
     if (response.success) {
       const userData = {
         email: response.user.email,
-        name: response.user.name,  // Asegúrate que el backend devuelva el nombre
-        id: response.user.id
+        name: response.user.name,
+        id: response.user.uid,  // Usar 'uid' en lugar de 'id'
+        rol: response.user.rol,  // Añadir el rol desde la respuesta
+        token: response.token    // Añadir el token
       };
       
       this.loggedIn.next(true);
       this.currentUser.next(userData);
       localStorage.setItem('custom_user', JSON.stringify(userData));
+      localStorage.setItem('token', response.token); // Guardar token
       return true;
     }
     return false;
