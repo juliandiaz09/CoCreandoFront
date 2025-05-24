@@ -9,6 +9,7 @@ import { RegisterComponent } from './components/register/register.component';
 import { ProjectDetailsComponent } from './components/project-details/project-details.component';
 import { ProjectCreationComponent } from './components/project-creation/project-creation.component';
 import { ProjectAnalyticsComponent } from './components/project-analytics/project-analytics.component';
+import { ProjectEditComponent } from './components/project-edit/project-edit.component'
 
 export const routes: Routes = [
   { 
@@ -45,6 +46,11 @@ export const routes: Routes = [
   { 
     path: 'project-analytics/:id', 
     component: ProjectAnalyticsComponent,
+    canActivate: [AuthGuard]
+  },
+  { 
+    path: 'project-edit/:id', 
+    component: ProjectEditComponent,
     canActivate: [AuthGuard]
   },
   { 

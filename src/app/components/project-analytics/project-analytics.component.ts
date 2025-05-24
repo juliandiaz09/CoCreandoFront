@@ -4,6 +4,7 @@ import { ProjectService } from '../../services/project.service';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { DecimalPipe, DatePipe } from '@angular/common';
+import { Router } from '@angular/router';
 
 interface AnalyticsData {
   basicStats: {
@@ -60,6 +61,7 @@ export class ProjectAnalyticsComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private projectService: ProjectService,
+    private router: Router,
     private authService: AuthService,
     private decimalPipe: DecimalPipe,
     private datePipe: DatePipe
@@ -144,6 +146,10 @@ export class ProjectAnalyticsComponent implements OnInit {
     
     this.isLoading = false;
   }
+
+  navigateToEdit(): void {
+  this.router.navigate(['/project-edit', this.projectId]);
+}
 
   private getRewardName(rewards: any[], amount: number): string {
     if (!rewards) return 'Sin recompensa';

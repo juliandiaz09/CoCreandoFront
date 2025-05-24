@@ -86,13 +86,23 @@ private generateProjectId(): string {
 }
 
   updateProject(id: string, projectData: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/actualizarProyecto/${id}`, projectData).pipe(
-      catchError((error) => {
-        console.error(`Error updating project ${id}:`, error);
-        throw error;
-      })
-    );
-  }
+  const token = this.authService.getToken();
+  
+  const headers = new HttpHeaders({
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  });
+
+  return this.http.put(`${this.apiUrl}/proyecto/actualizarProyecto/${id}`, projectData, {
+    headers,
+    withCredentials: true
+  }).pipe(
+    catchError((error) => {
+      console.error(`Error updating project ${id}:`, error);
+      throw error;
+    })
+  );
+}
 
   deleteProject(id: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/eliminarProyecto/${id}`).pipe(

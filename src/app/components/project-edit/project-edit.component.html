@@ -1,0 +1,66 @@
+<!-- project-edit.component.html -->
+<div class="edit-container">
+  <h2>Editar Proyecto</h2>
+  
+  <div *ngIf="isLoading" class="loading-message">
+    <p>Cargando datos del proyecto...</p>
+  </div>
+
+  <form *ngIf="!isLoading" [formGroup]="projectForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="title">Título del Proyecto *</label>
+      <input type="text" id="title" formControlName="title" [value]="projectForm.value.title">
+      <div *ngIf="projectForm.get('title')?.invalid && projectForm.get('title')?.touched" 
+           class="error-message">
+        El título debe tener al menos 5 caracteres
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="description">Descripción Corta *</label>
+      <textarea id="description" formControlName="description">{{ projectForm.value.description }}</textarea>
+      <div *ngIf="projectForm.get('description')?.invalid && projectForm.get('description')?.touched" 
+           class="error-message">
+        La descripción debe tener al menos 20 caracteres
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="longDescription">Descripción Detallada *</label>
+      <textarea id="longDescription" formControlName="longDescription">{{ projectForm.value.longDescription }}</textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="category">Categoría *</label>
+      <select id="category" formControlName="category">
+        <option value="">Selecciona una categoría</option>
+        <option *ngFor="let cat of categories" [value]="cat" [selected]="cat === projectForm.value.category">
+          {{ cat }}
+        </option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="location">Ubicación *</label>
+      <input type="text" id="location" formControlName="location" [value]="projectForm.value.location">
+    </div>
+
+    <div class="form-group">
+      <label for="risks">Retos y desafíos *</label>
+      <textarea id="risks" formControlName="risksAndChallenges">{{ projectForm.value.risksAndChallenges }}</textarea>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" [disabled]="projectForm.invalid || isLoading">
+        {{ isLoading ? 'Guardando...' : 'Guardar Cambios' }}
+      </button>
+      <button type="button" (click)="onCancel()">
+        Cancelar
+      </button>
+    </div>
+
+    <div *ngIf="error" class="error-message">
+      {{ error }}
+    </div>
+  </form>
+</div>

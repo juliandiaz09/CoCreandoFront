@@ -8,6 +8,7 @@
   <div *ngIf="!error">
     <h2>Análisis del Proyecto</h2>
     <p class="project-title">{{ project.title }}</p>
+    <button (click)="navigateToEdit()" class="edit-button">Editar Proyecto</button>
     
     <!-- Sección de estadísticas principales -->
     <div class="stats-grid">
@@ -16,7 +17,9 @@
         <p class="stat-value">${{ analyticsData.basicStats.totalCollected | number:'1.0-0' }}</p>
         <p class="stat-label">{{ analyticsData.basicStats.percentageFunded }}% de la meta</p>
       </div>
-      
+      <div class="action-buttons">
+</div>
+
       <!-- Resto de las tarjetas de estadísticas -->
       <div class="stat-card">
         <h3>Apoyos</h3>
