@@ -57,6 +57,7 @@ export class ProjectAnalyticsComponent implements OnInit {
   isLoading = true;
   error: string | null = null;
   currentUserEmail: string = '';
+  isCreator: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -87,6 +88,7 @@ export class ProjectAnalyticsComponent implements OnInit {
         }
         
         this.project = project;
+        this.isCreator = project.creator?.email === this.currentUserEmail;
         
         this.generateAnalytics(project);
       },

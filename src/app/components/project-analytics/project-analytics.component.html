@@ -8,7 +8,7 @@
   <div *ngIf="!error">
     <h2>Análisis del Proyecto</h2>
     <p class="project-title">{{ project.title }}</p>
-    <button (click)="navigateToEdit()" class="edit-button">Editar Proyecto</button>
+    <button *ngIf="isCreator" (click)="navigateToEdit()" class="edit-button">Editar Proyecto</button>
     
     <!-- Sección de estadísticas principales -->
     <div class="stats-grid">
