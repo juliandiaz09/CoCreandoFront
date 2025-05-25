@@ -38,27 +38,37 @@ export class LoginComponent {
     }
   }
 
-  async onSubmit(): Promise<void> {
+async onSubmit(): Promise<void> {
   if (!this.email || !this.password) {
     this.errorMessage = 'Por favor completa todos los campos';
     return;
   }
-
-  if (!this.validateEmail(this.email)) {
-    this.errorMessage = 'Por favor ingresa un correo electrónico válido';
-    return;
-  }
-
   this.loading = true;
   this.errorMessage = '';
 
   try {
     const success = await this.authService.login(this.email, this.password);
     if (success) {
+      if (this.rememberMe) {
+        localStorage.setItem('rememberedEmail', this.email);
+      } else {
+        localStorage.removeItem('rememberedEmail');
+      }
       this.router.navigate(['/dashboard']);
     }
   } catch (error: any) {
-    this.errorMessage = this.getFirebaseErrorMessage(error.code);
+    // Mostrar directamente el mensaje del backend
+    this.errorMessage = error.error?.message || error.message || 'Error al iniciar sesión';
+    
+    // Manejar códigos específicos si es necesario
+    if (error.error?.code === 'email_not_verified') {
+      this.errorMessage = 'Por favor verifica tu email antes de iniciar sesión';
+    }
+    if (error.error?.code === 'account_banned') {
+      this.errorMessage = 'Cuenta suspendida. Contacta al soporte.';
+    }
+    if (error.error?.code === 'invalid_email_format') {
+    }
   } finally {
     this.loading = false;
   }
