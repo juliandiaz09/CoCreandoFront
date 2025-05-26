@@ -63,6 +63,7 @@ export class RegisterComponent {
       const success = await this.authService.register(this.name, this.email, this.password);
       
       if (success) {
+        alert("Se ha enviado un Correo Electrónico de Verificación.");
         this.router.navigate(['/dashboard']);
       } else {
         this.errorMessage = 'Error al registrar el usuario';

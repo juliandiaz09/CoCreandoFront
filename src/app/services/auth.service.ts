@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
+import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from 'firebase/auth';
+import { auth } from '../firebase.config'; // ruta al archivo de config
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +20,23 @@ export class AuthService {
       this.loggedIn.next(true);
     }
   }
+
+  async firebaseRegister(name: string, email: string, password: string): Promise<boolean> {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    await updateProfile(userCredential.user, { displayName: name });
+    await sendEmailVerification(userCredential.user);
+    return true;
+  }
+
+  async isEmailVerified(): Promise<boolean> {
+    const auth = getAuth();
+    if (auth.currentUser) {
+      await auth.currentUser.reload(); // 🔄 Forzar actualización del usuario
+      return auth.currentUser.emailVerified;
+    }
+    return false;
+  }
+
 
 async login(email: string, password: string): Promise<boolean> {
   try {
@@ -70,35 +89,28 @@ async login(email: string, password: string): Promise<boolean> {
     }
   }
 
-  async register(name: string, email: string, password: string): Promise<boolean> {
-    try {
-      const response: any = await this.http.post('http://127.0.0.1:5000/registro', {
-        name,
-        email,
-        password
-      }).toPromise();
+async register(name: string, email: string, password: string): Promise<boolean> {
+  try {
+    // Paso 1: validar con el backend (solo validación, no crear usuario)
+    const response: any = await this.http.post('http://127.0.0.1:5000/registro', {
+      name,
+      email,
+      password
+    }).toPromise();
 
-      if (response.success) {
-        const userData = {
-          email: response.user.email,
-          name: response.user.name,
-          id: response.user.uid,
-          rol: response.user.rol,
-          token: response.token
-        };
-        
-        this.loggedIn.next(true);
-        this.currentUser.next(userData);
-        localStorage.setItem('custom_user', JSON.stringify(userData));
-        localStorage.setItem('token', response.token);
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error('Register error:', error);
-      throw error;
+    if (response.success) {
+      // Paso 2: crear usuario en Firebase y enviar verificación
+      await this.firebaseRegister(name, email, password);
+      return true;
+    } else {
+      throw { message: response.message || 'Error en validación del backend' };
     }
+  } catch (error) {
+    console.error('Register error:', error);
+    throw error;
   }
+}
+
 
   logout(): void {
     localStorage.removeItem('custom_user');

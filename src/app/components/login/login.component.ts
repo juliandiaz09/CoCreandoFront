@@ -49,12 +49,21 @@ async onSubmit(): Promise<void> {
   try {
     const success = await this.authService.login(this.email, this.password);
     if (success) {
-      if (this.rememberMe) {
-        localStorage.setItem('rememberedEmail', this.email);
+      const verified = await this.authService.isEmailVerified(); // ← usa esta nueva función
+      console.log(verified)
+
+      if (verified) {
+        if (this.rememberMe) {
+          localStorage.setItem('rememberedEmail', this.email);
+        } else {
+          localStorage.removeItem('rememberedEmail');
+        }
+
+        this.router.navigate(['/dashboard']);
       } else {
-        localStorage.removeItem('rememberedEmail');
+        this.authService.logout(); // cerrar sesión
+        this.errorMessage = 'Tu correo no ha sido verificado. Por favor revisa tu bandeja de entrada.';
       }
-      this.router.navigate(['/dashboard']);
     }
   } catch (error: any) {
     // Mostrar directamente el mensaje del backend
