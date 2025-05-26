@@ -4,6 +4,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ProjectService } from '../../services/project.service';
 import { AuthService } from '../../services/auth.service';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-project-details',
@@ -19,24 +21,26 @@ export class ProjectDetailsComponent implements OnInit {
   currentUser: any;
   isLoading = true;
   error: string | null = null;
+  isProcessingPayment = false;
   
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private projectService: ProjectService,
-    private authService: AuthService
+    private authService: AuthService,
+    private http: HttpClient
   ) {}
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
-      const projectId = params.get('id');
+      this.projectId = params.get('id') || '';
       
       this.authService.currentUser$.subscribe(user => {
         this.currentUser = user;
       });
 
-      if (projectId) {
-        this.loadProject(projectId);
+      if (this.projectId) {
+        this.loadProject(this.projectId);
       } else {
         this.router.navigate(['/dashboard'], { replaceUrl: true });
       }
@@ -44,49 +48,103 @@ export class ProjectDetailsComponent implements OnInit {
   }
 
   loadProject(projectId: string): void {
-  this.isLoading = true;
-  this.error = null;
-  
-  this.projectService.getProjectById(projectId).subscribe({
+    this.isLoading = true;
+    this.error = null;
+    
+    this.projectService.getProjectById(projectId).subscribe({
       next: (project) => {
         if (!project) {
           this.router.navigate(['/dashboard'], { replaceUrl: true });
           return;
         }
       
-      // Transformar fechas y asegurar datos opcionales
-      this.project = {
-        ...project,
-        deadline: new Date(project.deadline),
-        longDescription: project.longDescription || `Este proyecto busca ${project.description.toLowerCase()} a través de un enfoque innovador y colaborativo.`,
-        location: project.location || 'Ubicación no especificada',
-        creator: project.creator || this.getDefaultCreator(),
-        risksAndChallenges: project.risksAndChallenges || 'No se han especificado los retos y desafíos de este proyecto.',
-        rewards: project.rewards || this.getDefaultRewards(),
-        updates: (project.updates || []).map((update: any) => ({
-          ...update,
-          date: new Date(update.date)
-        })),
-        supporters: (project.supporters || []).map((supporter: any) => ({
-          ...supporter,
-          date: new Date(supporter.date)
-        }))
-      };
-      
-      this.isLoading = false;
-    },
-    error: (err) => {
-      console.error('Error loading project', err);
-      this.error = 'No se pudo cargar el proyecto. Por favor intenta más tarde.';
-      this.isLoading = false;
-    }
-  });
-}
-  navigateAnalisis(): void {
-    this.route.paramMap.subscribe(params => {
-      const projectId = params.get('id');
-    this.router.navigate(['/project-analytics', projectId]);
+        this.project = {
+          ...project,
+          deadline: new Date(project.deadline),
+          longDescription: project.longDescription || `Este proyecto busca ${project.description.toLowerCase()} a través de un enfoque innovador y colaborativo.`,
+          location: project.location || 'Ubicación no especificada',
+          creator: project.creator || this.getDefaultCreator(),
+          risksAndChallenges: project.risksAndChallenges || 'No se han especificado los retos y desafíos de este proyecto.',
+          rewards: project.rewards || this.getDefaultRewards(),
+          updates: (project.updates || []).map((update: any) => ({
+            ...update,
+            date: new Date(update.date)
+          })),
+          supporters: (project.supporters || []).map((supporter: any) => ({
+            ...supporter,
+            date: new Date(supporter.date)
+          }))
+        };
+        
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Error loading project', err);
+        this.error = 'No se pudo cargar el proyecto. Por favor intenta más tarde.';
+        this.isLoading = false;
+      }
     });
+  }
+
+  invest() {
+    if (this.investmentAmount <= 0) {
+      alert('Por favor ingresa un monto válido');
+      return;
+    }
+    
+    if (!this.currentUser) {
+      alert('Debes iniciar sesión para invertir');
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    if (this.investmentAmount > (this.project.goal - this.project.collected)) {
+      alert('El monto ingresado supera lo que falta para alcanzar la meta del proyecto');
+      return;
+    }
+
+    this.isProcessingPayment = true;
+
+    // Datos para el pago
+    const paymentData = {
+      id_proyecto: this.projectId,
+      descripcion: `Inversión en ${this.project.title}`,
+      valor: this.investmentAmount,
+      email: this.currentUser.email
+    };
+
+    // Llamar al backend para procesar el pago
+    this.http.post(`${environment.apiUrl}/pasarela/crear-pago`, paymentData, { responseType: 'text' })
+      .subscribe({
+        next: (htmlForm) => {
+          // Abrir una nueva ventana con el formulario de pago
+          const payuWindow = window.open('', 'PayU', 'width=800,height=600');
+          if (payuWindow) {
+            payuWindow.document.write(htmlForm);
+          } else {
+            // Si el popup fue bloqueado, redirigir en la misma ventana
+            const div = document.createElement('div');
+            div.innerHTML = htmlForm;
+            document.body.appendChild(div);
+            const form = div.querySelector('form');
+            if (form) {
+              form.submit();
+            }
+          }
+        },
+        error: (err) => {
+          console.error('Error al procesar el pago', err);
+          alert('Ocurrió un error al procesar tu pago. Por favor intenta nuevamente.');
+          this.isProcessingPayment = false;
+        },
+        complete: () => {
+          this.isProcessingPayment = false;
+        }
+      });
+  }
+
+  navigateAnalisis(): void {
+    this.router.navigate(['/project-analytics', this.projectId]);
   }
 
   private getDefaultCreator() {
@@ -111,29 +169,6 @@ export class ProjectDetailsComponent implements OnInit {
         minimumAmount: 50
       }
     ];
-  }
-  invest() {
-    if (this.investmentAmount <= 0) {
-      alert('Por favor ingresa un monto válido');
-      return;
-    }
-    
-    if (!this.currentUser) {
-      alert('Debes iniciar sesión para invertir');
-      this.router.navigate(['/login']);
-      return;
-    }
-    
-    // Actualizar el proyecto
-    this.project.collected += this.investmentAmount;
-    this.project.supporters.push({
-      name: this.currentUser.email,
-      amount: this.investmentAmount,
-      date: new Date()
-    });
-    
-    alert(`¡Gracias por tu inversión de $${this.investmentAmount}!`);
-    this.investmentAmount = 0;
   }
 
   getDaysRemaining(deadline: Date): number {

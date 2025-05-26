@@ -1,6 +1,7 @@
 export interface Environment {
   production: boolean;
   apiUrl: string;
+  payuSandbox: boolean;
   firebaseConfig: {
     apiKey: string;
     authDomain: string;

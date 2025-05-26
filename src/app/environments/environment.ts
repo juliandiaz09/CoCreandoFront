@@ -3,6 +3,7 @@ import { Environment } from './environment.model';
 export const environment: Environment = {
   production: false,
   apiUrl: 'http://localhost:5000',
+  payuSandbox: true,
   firebaseConfig: {
     apiKey: "AIzaSyDnCfzF5psHLcnmbeJGrBuWpxOkUp01Lfo",
     authDomain: "cocreando-2dbd1.firebaseapp.com",

@@ -45,9 +45,15 @@
           <h3>Invertir en este proyecto</h3>
           <div class="form-group">
             <label for="amount">Monto a invertir ($)</label>
-            <input type="number" id="amount" [(ngModel)]="investmentAmount" min="1" [max]="project.goal - project.collected">
+            <input type="number" id="amount" [(ngModel)]="investmentAmount" 
+                  min="1" [max]="project.goal - project.collected"
+                  [disabled]="isProcessingPayment">
           </div>
-          <button class="invest-button" (click)="invest()">Invertir ahora</button>
+          <button class="invest-button" (click)="invest()" [disabled]="isProcessingPayment">
+            <span *ngIf="!isProcessingPayment">Invertir ahora</span>
+            <span *ngIf="isProcessingPayment">Procesando pago...</span>
+          </button>
+          <p class="note">Serás redirigido a PayU para completar el pago de forma segura</p>
         </div>
   
         <div class="rewards-section">
