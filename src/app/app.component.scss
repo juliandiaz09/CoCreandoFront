@@ -39,12 +39,17 @@ $shadow-color: rgba(0, 0, 0, 0.1);
     letter-spacing: -0.5px;
     display: flex;
     align-items: center;
-    
-    &::before {
-      content: "🌱";
-      margin-right: 0.5rem;
-      font-size: 1.5rem;
+
+    .logo-img {
+    width: 70px;       // Ajusta el ancho deseado
+    height: auto;      // Mantiene la proporción del logo
+    margin-right: 0.5rem;
     }
+    // &::before {
+    //   content: "🌱";
+    //   margin-right: 0.5rem;
+    //   font-size: 1.5rem;
+    // }
   }
   
   .nav-links {

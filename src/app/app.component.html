@@ -1,7 +1,10 @@
 <div class="main-container">
   <nav class="navbar">
     <div class="container">
-      <span class="logo">CoCreando</span>
+      <span class="logo">
+          <img src="https://res.cloudinary.com/dtg8i6j9f/image/upload/v1748278102/2-removebg-preview_orvlqt.png" alt="" class="logo-img" />
+          CoCreando
+      </span>
       <div class="nav-links">
         <!-- Mostrar enlaces condicionales basados en el estado de autenticación -->
         <ng-container *ngIf="authService.isAuthenticated$ | async; else notAuthenticated">
