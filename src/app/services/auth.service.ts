@@ -4,6 +4,12 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
 import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from 'firebase/auth';
 import { auth } from '../firebase.config'; // ruta al archivo de config
+import {
+  getFirestore,
+  doc,
+  setDoc
+} from 'firebase/firestore';
+
 
 @Injectable({
   providedIn: 'root'
@@ -23,8 +29,21 @@ export class AuthService {
 
   async firebaseRegister(name: string, email: string, password: string): Promise<boolean> {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
     await updateProfile(userCredential.user, { displayName: name });
+
     await sendEmailVerification(userCredential.user);
+        // Guardar en Firestore
+    const firestore = getFirestore();
+    const userRef = doc(firestore, 'users', user.uid);
+    await setDoc(userRef, {
+      uid: user.uid,
+      name: name,
+      email: email,
+      createdAt: new Date().toISOString(),
+      role: 'usuario',
+      status: 'active'
+    });
     return true;
   }
 
@@ -58,6 +77,8 @@ async login(email: string, password: string): Promise<boolean> {
       
       this.loggedIn.next(true);
       this.currentUser.next(userData);
+      console.log(userData.id);
+      localStorage.setItem('user_id', userData.id);
       localStorage.setItem('custom_user', JSON.stringify(userData));
       localStorage.setItem('token', response.token);
       return true;

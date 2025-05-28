@@ -3,6 +3,7 @@ import { Router, RouterModule } from '@angular/router';
 import { AuthService } from './services/auth.service';
 import { CommonModule } from '@angular/common';
 import { UserDisplayPipe } from './pipes/user-display.pipe';
+import { NotificationService, Notificacion } from './services/notification.service';
 
 @Component({
   selector: 'app-root',
@@ -14,16 +15,23 @@ import { UserDisplayPipe } from './pipes/user-display.pipe';
 export class AppComponent {
   title = 'CoCreando';
   showNotifications = false;
-  unreadNotifications = 2; // Ejemplo - deberías obtener esto de tu servicio
-  notifications = [
-    { id: 1, message: 'Nuevo comentario en tu proyecto' },
-    { id: 2, message: 'Tienes una nueva colaboración' }
-  ]; // Ejemplo - deberías obtener esto de tu servicio
+  unreadNotifications = 0; // Ejemplo - deberías obtener esto de tu servicio
+  notifications: Notificacion[] = []; // Ejemplo - deberías obtener esto de tu servicio
 
   constructor(
     public authService: AuthService,
-    private router: Router
+    private router: Router,
+    private notificationService: NotificationService
   ) {}
+
+  ngOnInit() {
+    this.notificationService.notifications$.subscribe(nots => {
+      console.log('[👀] Notificaciones en componente:', nots);
+
+      this.notifications = nots;
+      this.unreadNotifications = nots.filter(n => !n.read).length;
+    });
+  }
 
   navigateTo(route: string) {
     this.router.navigate([route]);
@@ -37,8 +45,10 @@ export class AppComponent {
   toggleNotifications() {
     this.showNotifications = !this.showNotifications;
     if (this.showNotifications) {
-      // Aquí podrías marcar las notificaciones como leídas
-      this.unreadNotifications = 0;
+      const userId = localStorage.getItem('user_id');
+      if (userId) {
+        this.notificationService.marcarComoLeidas(userId);
+      }
     }
   }
 }

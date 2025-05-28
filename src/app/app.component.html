@@ -15,7 +15,8 @@
               <span class="notification-badge" *ngIf="unreadNotifications > 0">{{ unreadNotifications }}</span>
               <div class="notifications-dropdown" *ngIf="showNotifications">
                 <div class="notification-item" *ngFor="let notification of notifications">
-                  {{ notification.message }}
+                  <strong *ngIf="!notification.read">•</strong>
+                  {{ notification.title }}: {{ notification.message }}
                 </div>
                 <div class="notification-empty" *ngIf="notifications.length === 0">
                   No hay notificaciones

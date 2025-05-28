@@ -63,12 +63,20 @@ export class ProjectService {
   projectData.updates = projectData.updates || [];
   projectData.supporters = [];
 
+    // 👇 Obtener datos del usuario actual desde AuthService
+  const currentUser = this.authService.getCurrentUserValue();
+  if (currentUser) {
+    projectData.ownerId = currentUser.uid;
+    projectData.ownerName = currentUser.name;
+    projectData.ownerEmail = currentUser.email;
+  }
+
   const token = this.authService.getToken(); // Ahora debería funcionar
     
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    });
+  const headers = new HttpHeaders({
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  });
 
     return this.http.post(`${this.apiUrl}/proyecto/crearProyecto`, projectData, { 
       headers,
