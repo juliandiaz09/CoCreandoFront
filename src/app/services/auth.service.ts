@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
-import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from 'firebase/auth';
+import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, updateProfile, onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase.config'; // ruta al archivo de config
 import {
   getFirestore,
@@ -18,15 +18,51 @@ export class AuthService {
   private loggedIn = new BehaviorSubject<boolean>(false);
   private currentUser = new BehaviorSubject<any | null>(null);
 
-  constructor(private http: HttpClient, private router: Router) {
-    // Cargar usuario desde localStorage al iniciar
-    const savedUser = localStorage.getItem('custom_user');
-    if (savedUser) {
-      this.currentUser.next(JSON.parse(savedUser));
-      this.loggedIn.next(true);
+constructor(private http: HttpClient, private router: Router) {
+  const auth = getAuth();
+
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      await user.reload(); // 🔄 fuerza la actualización de estado de verificación
+      if (user.emailVerified) {
+        // Si el usuario está verificado, puedes seguir
+        const userData = {
+          email: user.email,
+          name: user.displayName || user.email?.split('@')[0],
+          id: user.uid,
+          uid: user.uid,
+          token: await user.getIdToken(),
+          rol: 'usuario',
+          status: 'active'
+        };
+
+        this.loggedIn.next(true);
+        this.currentUser.next(userData);
+        localStorage.setItem('custom_user', JSON.stringify(userData));
+        localStorage.setItem('token', userData.token);
+      } else {
+        console.warn("Correo no verificado");
+        this.logout(); // Forzar logout si no está verificado
+      }
+    } else {
+      this.loggedIn.next(false);
+      this.currentUser.next(null);
     }
+  });
+}
+
+async firebaseLogin(email: string, password: string): Promise<boolean> {
+  const auth = getAuth();
+  const userCredential = await signInWithEmailAndPassword(auth, email, password);
+  await userCredential.user.reload();
+
+  if (!userCredential.user.emailVerified) {
+    throw { code: 'email_not_verified', message: 'Correo no verificado' };
   }
 
+  // Ahora sí, haz el login con tu backend
+  return await this.login(email, password);
+}
   async firebaseRegister(name: string, email: string, password: string): Promise<boolean> {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;

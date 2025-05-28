@@ -47,23 +47,15 @@ async onSubmit(): Promise<void> {
   this.errorMessage = '';
 
   try {
-    const success = await this.authService.login(this.email, this.password);
+    const success = await this.authService.firebaseLogin(this.email, this.password);
+
     if (success) {
-      const verified = await this.authService.isEmailVerified(); // ← usa esta nueva función
-      console.log(verified)
-
-      if (verified) {
-        if (this.rememberMe) {
-          localStorage.setItem('rememberedEmail', this.email);
-        } else {
-          localStorage.removeItem('rememberedEmail');
-        }
-
-        this.router.navigate(['/dashboard']);
+      if (this.rememberMe) {
+        localStorage.setItem('rememberedEmail', this.email);
       } else {
-        this.authService.logout(); // cerrar sesión
-        this.errorMessage = 'Tu correo no ha sido verificado. Por favor revisa tu bandeja de entrada.';
-      }
+        localStorage.removeItem('rememberedEmail');
+       }
+     this.router.navigate(['/dashboard']);
     }
   } catch (error: any) {
     // Mostrar directamente el mensaje del backend
