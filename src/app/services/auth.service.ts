@@ -33,7 +33,7 @@ export class AuthService {
     await updateProfile(userCredential.user, { displayName: name });
 
     await sendEmailVerification(userCredential.user);
-        // Guardar en Firestore
+    // Guardar en Firestore
     const firestore = getFirestore();
     const userRef = doc(firestore, 'users', user.uid);
     await setDoc(userRef, {
@@ -53,50 +53,55 @@ export class AuthService {
       await auth.currentUser.reload(); // 🔄 Forzar actualización del usuario
       return auth.currentUser.emailVerified;
     }
-    return false;
-  }
-
-
-async login(email: string, password: string): Promise<boolean> {
-  try {
-    const response: any = await this.http.post('http://127.0.0.1:5000/login', {
-      email,
-      password
-    }).toPromise();
-
-    if (response && response.success) {
-      const userData = {
-        email: response.user?.email || email,
-        name: response.user?.name || email.split('@')[0],
-        id: response.user?.uid || response.user?.id || '',
-        uid: response.user?.uid || response.user?.id || '',
-        token: response.token,
-        rol: response.user?.rol || 'usuario',
-        status: response.user?.status || 'active'
-      };
-      
-      this.loggedIn.next(true);
-      this.currentUser.next(userData);
-      console.log(userData.id);
-      localStorage.setItem('user_id', userData.id);
-      localStorage.setItem('custom_user', JSON.stringify(userData));
-      localStorage.setItem('token', response.token);
-      return true;
-    }
-    return false;
-  } catch (error: any) {
-    console.error('Login error:', error);
     
-    // Manejo específico de errores
-    if (error.error) {
-      throw {
-        code: error.error.code || 'unknown_error',
-        message: error.error.message || 'Error desconocido'
-      };
-    }
-    throw error;
+    return false;
   }
-}
+
+  isAdmin(): boolean {
+    const user = this.getCurrentUserValue();
+    return user?.rol === 'admin';
+  }
+
+  async login(email: string, password: string): Promise<boolean> {
+    try {
+      const response: any = await this.http.post('http://127.0.0.1:5000/login', {
+        email,
+        password
+      }).toPromise();
+
+      if (response && response.success) {
+        const userData = {
+          email: response.user?.email || email,
+          name: response.user?.name || email.split('@')[0],
+          id: response.user?.uid || response.user?.id || '',
+          uid: response.user?.uid || response.user?.id || '',
+          token: response.token,
+          rol: response.user?.rol || 'usuario',
+          status: response.user?.status || 'active'
+        };
+
+        this.loggedIn.next(true);
+        this.currentUser.next(userData);
+        console.log(userData.id);
+        localStorage.setItem('user_id', userData.id);
+        localStorage.setItem('custom_user', JSON.stringify(userData));
+        localStorage.setItem('token', response.token);
+        return true;
+      }
+      return false;
+    } catch (error: any) {
+      console.error('Login error:', error);
+
+      // Manejo específico de errores
+      if (error.error) {
+        throw {
+          code: error.error.code || 'unknown_error',
+          message: error.error.message || 'Error desconocido'
+        };
+      }
+      throw error;
+    }
+  }
 
   async fetchUserProfile(): Promise<any> {
     try {
@@ -110,27 +115,27 @@ async login(email: string, password: string): Promise<boolean> {
     }
   }
 
-async register(name: string, email: string, password: string): Promise<boolean> {
-  try {
-    // Paso 1: validar con el backend (solo validación, no crear usuario)
-    const response: any = await this.http.post('http://127.0.0.1:5000/registro', {
-      name,
-      email,
-      password
-    }).toPromise();
+  async register(name: string, email: string, password: string): Promise<boolean> {
+    try {
+      // Paso 1: validar con el backend (solo validación, no crear usuario)
+      const response: any = await this.http.post('http://127.0.0.1:5000/registro', {
+        name,
+        email,
+        password
+      }).toPromise();
 
-    if (response.success) {
-      // Paso 2: crear usuario en Firebase y enviar verificación
-      await this.firebaseRegister(name, email, password);
-      return true;
-    } else {
-      throw { message: response.message || 'Error en validación del backend' };
+      if (response.success) {
+        // Paso 2: crear usuario en Firebase y enviar verificación
+        await this.firebaseRegister(name, email, password);
+        return true;
+      } else {
+        throw { message: response.message || 'Error en validación del backend' };
+      }
+    } catch (error) {
+      console.error('Register error:', error);
+      throw error;
     }
-  } catch (error) {
-    console.error('Register error:', error);
-    throw error;
   }
-}
 
 
   logout(): void {
@@ -142,8 +147,8 @@ async register(name: string, email: string, password: string): Promise<boolean> 
   }
 
   get isAuthenticated(): boolean {
-  return this.loggedIn.value;
-}
+    return this.loggedIn.value;
+  }
   get isAuthenticated$() {
     return this.loggedIn.asObservable();
   }
@@ -151,7 +156,7 @@ async register(name: string, email: string, password: string): Promise<boolean> 
   get currentUser$() {
     return this.currentUser.asObservable();
   }
-  
+
   getToken(): string | null {
     const userDataRaw = localStorage.getItem('custom_user');
     if (userDataRaw) {

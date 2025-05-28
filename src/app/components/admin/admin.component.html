@@ -1,1 +1,110 @@
-<p>admin works!</p>
+<div class="admin-container">
+  <h1>Panel de Administración</h1>
+
+  <div *ngIf="isLoading" class="loading-spinner">
+    <p>Cargando datos...</p>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <p>{{error}}</p>
+    <button (click)="refreshData()">Reintentar</button>
+  </div>
+
+  <div *ngIf="!isLoading && !error" class="admin-content">
+    <!-- Sección de Usuarios -->
+    <div class="admin-section">
+      <h2>Gestión de Usuarios</h2>
+      
+      <div class="filters">
+        <input type="text" [(ngModel)]="searchUserTerm" 
+               (input)="filterUsers()" placeholder="Buscar usuarios...">
+        <select [(ngModel)]="selectedUserRole" (change)="filterUsers()">
+          <option value="all">Todos los roles</option>
+          <option value="usuario">Usuario</option>
+          <option value="admin">Administrador</option>
+        </select>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Email</th>
+              <th>Rol</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of filteredUsers">
+              <td>{{user.name}}</td>
+              <td>{{user.email}}</td>
+              <td>
+                <select [(ngModel)]="user.rol" (change)="updateUserRole(user.id, user.rol)">
+                  <option value="usuario">Usuario</option>
+                  <option value="admin">Administrador</option>
+                </select>
+              </td>
+              <td>{{user.status || 'active'}}</td>
+              <td>
+                <button (click)="banUser(user.id)" class="danger">Banear</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div *ngIf="filteredUsers.length === 0" class="no-results">
+          No se encontraron usuarios con los filtros aplicados.
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección de Proyectos -->
+    <div class="admin-section">
+      <h2>Gestión de Proyectos</h2>
+      
+      <div class="filters">
+        <input type="text" [(ngModel)]="searchProjectTerm" 
+               (input)="filterProjects()" placeholder="Buscar proyectos...">
+        <select [(ngModel)]="selectedProjectStatus" (change)="filterProjects()">
+          <option value="pending">Pendientes</option>
+          <option value="approved">Aprobados</option>
+          <option value="rejected">Rechazados</option>
+          <option value="all">Todos</option>
+        </select>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Título</th>
+              <th>Creador</th>
+              <th>Categoría</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let project of filteredProjects">
+              <td>{{project.title}}</td>
+              <td>{{project.creator?.name || project.creator}}</td>
+              <td>{{project.category}}</td>
+              <td>{{project.status}}</td>
+              <td>
+                <div class="action-buttons">
+                  <button (click)="approveProject(project.id)" class="success">Aprobar</button>
+                  <button (click)="rejectProject(project.id)" class="danger">Rechazar</button>
+                  <a [routerLink]="['/project', project.id]" class="button">Ver</a>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div *ngIf="filteredProjects.length === 0" class="no-results">
+          No se encontraron proyectos con los filtros aplicados.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

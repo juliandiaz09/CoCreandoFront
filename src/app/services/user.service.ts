@@ -57,5 +57,17 @@ export class UserService {
     return this.http.put(`${this.apiUrl}/${id}`, data);
   }
 
-  // Agrega otros métodos según necesites
+  promoteToAdmin(userId: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/usuario/actualizarUsuario/${userId}`, 
+      { rol: 'admin' },
+      { withCredentials: true }
+    );
+  }
+
+  banUser(userId: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/usuario/actualizarUsuario/${userId}`, 
+      { status: 'banned' },
+      { withCredentials: true }
+    );
+  }
 }
