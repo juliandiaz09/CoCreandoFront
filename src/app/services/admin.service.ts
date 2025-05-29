@@ -17,11 +17,19 @@ export class AdminService {
 
   private getHeaders(): HttpHeaders {
     const token = this.authService.getToken();
-    return new HttpHeaders({
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    });
+    if (!token) {
+    console.error('No se encontró token JWT');
+    return new HttpHeaders();
   }
+
+  // Verificar que el token comience con 'Bearer '
+  const authToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+  
+  return new HttpHeaders({
+    'Authorization': authToken,
+    'Content-Type': 'application/json'
+  });
+}
 
   getUsers(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/usuario/listarUsuarios`, {
