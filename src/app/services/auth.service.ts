@@ -244,12 +244,7 @@ async firebaseLogin(email: string, password: string): Promise<boolean> {
   }
 
   getToken(): string | null {
-    const userDataRaw = localStorage.getItem('custom_user');
-    if (userDataRaw) {
-      const userData = JSON.parse(userDataRaw);
-      return userData?.token || null;
-    }
-    return null;
+    return localStorage.getItem('token');
   }
 
   getCurrentUserValue(): any | null {

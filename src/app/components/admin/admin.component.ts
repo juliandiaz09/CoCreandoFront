@@ -4,7 +4,7 @@ import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { Router } from '@angular/router';
+import { Router } from '@angular/router'
 
 @Component({
   selector: 'app-admin',
@@ -56,7 +56,7 @@ export class AdminComponent implements OnInit {
           },
           error: (err) => {
             console.error('Error loading projects:', err);
-            this.error = 'Error al cargar proyectos';
+            this.error = 'Error al cargar proyectos: ' + this.getErrorMessage(err);
             this.isLoading = false;
           }
         });
@@ -67,6 +67,16 @@ export class AdminComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  private getErrorMessage(error: any): string {
+    if (error.status === 403) {
+      return 'Acceso denegado. No tienes permisos de administrador.';
+    } else if (error.status === 401) {
+      return 'Sesión expirada. Por favor inicia sesión nuevamente.';
+    } else {
+      return 'Error en el servidor. Intenta nuevamente más tarde.';
+    }
   }
 
   filterUsers(): void {
@@ -98,7 +108,7 @@ export class AdminComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error updating user role:', err);
-        this.error = 'Error al actualizar rol del usuario';
+        this.error = 'Error al actualizar rol del usuario: ' + this.getErrorMessage(err);
       }
     });
   }
@@ -107,16 +117,35 @@ export class AdminComponent implements OnInit {
     if (confirm('¿Estás seguro de que quieres banear a este usuario?')) {
       this.adminService.banUser(userId).subscribe({
         next: () => {
-          this.users = this.users.filter(u => u.id !== userId);
+          const user = this.users.find(u => u.id === userId);
+          if (user) {
+            user.status = 'banned';
+          }
           this.filterUsers();
         },
         error: (err) => {
           console.error('Error banning user:', err);
-          this.error = 'Error al banear usuario';
+          this.error = 'Error al banear usuario: ' + this.getErrorMessage(err);
         }
       });
     }
   }
+  unbanUser(userId: string): void {
+    this.adminService.unbanUser(userId).subscribe({
+      next: () => {
+        const user = this.users.find(u => u.id === userId);
+        if (user) {
+          user.status = 'active';
+        }
+        this.filterUsers();
+      },
+      error: (err) => {
+        console.error('Error unbanning user:', err);
+        this.error = 'Error al desbanear usuario: ' + this.getErrorMessage(err);
+      }
+    });
+  }
+
 
   approveProject(projectId: string): void {
     this.adminService.approveProject(projectId).subscribe({
@@ -139,7 +168,7 @@ export class AdminComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error rejecting project:', err);
-        this.error = 'Error al rechazar proyecto';
+        this.error = 'Error al rechazar proyecto: ' + this.getErrorMessage(err);
       }
     });
   }

@@ -46,9 +46,17 @@
                   <option value="admin">Administrador</option>
                 </select>
               </td>
-              <td>{{user.status || 'active'}}</td>
               <td>
-                <button (click)="banUser(user.id)" class="danger">Banear</button>
+                <span *ngIf="user.status === 'banned'" class="banned-status">Baneado</span>
+                <span *ngIf="user.status !== 'banned'" class="active-status">Activo</span>
+              </td>
+              <td>
+                <button *ngIf="user.status !== 'banned'" 
+                        (click)="banUser(user.id)" 
+                        class="danger">Banear</button>
+                <button *ngIf="user.status === 'banned'" 
+                        (click)="unbanUser(user.id)" 
+                        class="success">Desbanear</button>
               </td>
             </tr>
           </tbody>
@@ -93,8 +101,8 @@
               <td>{{project.status}}</td>
               <td>
                 <div class="action-buttons">
-                  <button (click)="approveProject(project.id)" class="success">Aprobar</button>
-                  <button (click)="rejectProject(project.id)" class="danger">Rechazar</button>
+                  <button *ngIf="project.status === 'pending'" (click)="approveProject(project.id)" class="success">Aprobar</button>
+                  <button *ngIf="project.status === 'pending'" (click)="rejectProject(project.id)" class="danger">Rechazar</button>
                   <a [routerLink]="['/project', project.id]" class="button">Ver</a>
                 </div>
               </td>
