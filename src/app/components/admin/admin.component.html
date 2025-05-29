@@ -41,7 +41,7 @@
               <td>{{user.name}}</td>
               <td>{{user.email}}</td>
               <td>
-                <select [(ngModel)]="user.rol" (change)="updateUserRole(user.id, user.rol)">
+                <select [(ngModel)]="user.role" (change)="updateUserRole(user.id, user.role)">
                   <option value="usuario">Usuario</option>
                   <option value="admin">Administrador</option>
                 </select>

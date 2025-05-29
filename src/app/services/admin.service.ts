@@ -40,7 +40,7 @@ export class AdminService {
 
   updateUserRole(userId: string, newRole: string): Observable<any> {
     return this.http.put(`${this.apiUrl}/usuario/actualizarUsuario/${userId}`, 
-      { rol: newRole },
+      { role: newRole },
       { 
         headers: this.getHeaders(),
         withCredentials: true 

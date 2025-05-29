@@ -43,7 +43,7 @@ export class UserService {
           uid: id,
           email: userData.email,
           name: userData.name || userData.email.split('@')[0],
-          rol: 'usuario',
+          role: 'usuario',
           status: 'active'
         };
         return of(basicUser);

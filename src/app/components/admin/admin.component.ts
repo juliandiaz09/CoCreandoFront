@@ -83,7 +83,7 @@ export class AdminComponent implements OnInit {
     this.filteredUsers = this.users.filter(user => {
       const matchesSearch = user.name.toLowerCase().includes(this.searchUserTerm.toLowerCase()) || 
                           user.email.toLowerCase().includes(this.searchUserTerm.toLowerCase());
-      const matchesRole = this.selectedUserRole === 'all' || user.rol === this.selectedUserRole;
+      const matchesRole = this.selectedUserRole === 'all' || user.role === this.selectedUserRole;
       return matchesSearch && matchesRole;
     });
   }
@@ -102,7 +102,7 @@ export class AdminComponent implements OnInit {
       next: () => {
         const user = this.users.find(u => u.id === userId);
         if (user) {
-          user.rol = newRole;
+          user.role = newRole;
         }
         this.filterUsers();
       },

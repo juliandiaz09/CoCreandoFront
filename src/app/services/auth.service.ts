@@ -51,7 +51,7 @@ export class AuthService {
         id: user.uid,
         uid: user.uid,
         token: await user.getIdToken(),
-        rol: userData['role'] || userData['rol'] || 'usuario',
+        role: userData['role'] || userData['rol'] || 'usuario',
         status: userData['status'] || 'active'
       };
 
@@ -101,7 +101,7 @@ async firebaseLogin(email: string, password: string): Promise<boolean> {
     id: userCredential.user.uid,
     uid: userCredential.user.uid,
     token: await userCredential.user.getIdToken(),
-    rol: userData['role'] || userData['rol'] || 'usuario',
+    role: userData['role'] || userData['rol'] || 'usuario',
     status: userData['status'] || 'active'
   };
 
@@ -145,7 +145,7 @@ async firebaseLogin(email: string, password: string): Promise<boolean> {
 
   isAdmin(): boolean {
     const user = this.getCurrentUserValue();
-    return user?.rol?.toLowerCase() === 'admin';
+    return user?.role?.toLowerCase() === 'admin';
   }
 
   async login(email: string, password: string): Promise<boolean> {
@@ -162,7 +162,7 @@ async firebaseLogin(email: string, password: string): Promise<boolean> {
           id: response.user?.uid || response.user?.id || '',
           uid: response.user?.uid || response.user?.id || '',
           token: response.token,
-          rol: response.user?.rol || 'usuario',
+          role: response.user?.role || 'usuario',
           status: response.user?.status || 'active'
         };
 

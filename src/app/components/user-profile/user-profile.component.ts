@@ -60,7 +60,7 @@ export class UserProfileComponent implements OnInit {
         if (currentUser) {
           return of({
             ...currentUser,
-            rol: currentUser.rol || 'usuario',
+            role: currentUser.role || 'usuario',
             status: currentUser.status || 'active',
             email_verified: currentUser.email_verified || 'False'
           });
