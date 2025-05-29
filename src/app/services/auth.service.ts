@@ -3,12 +3,8 @@ import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
 import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, updateProfile, onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebase.config'; // ruta al archivo de config
-import {
-  getFirestore,
-  doc,
-  setDoc
-} from 'firebase/firestore';
+import { auth } from '../firebase.config';
+import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
 
 
 @Injectable({
@@ -23,24 +19,31 @@ constructor(private http: HttpClient, private router: Router) {
 
   onAuthStateChanged(auth, async (user) => {
     if (user) {
-      await user.reload(); // 🔄 fuerza la actualización de estado de verificación
+      await user.reload();
       if (user.emailVerified) {
-        // Si el usuario está verificado, puedes seguir
-        const userData = {
+        // Obtener datos adicionales de Firestore
+        const db = getFirestore();
+        const userRef = doc(db, 'users', user.uid);
+        const userDoc = await getDoc(userRef);
+        
+        const userData = userDoc.exists() ? userDoc.data() : {};
+
+        const fullUserData = {
           email: user.email,
           name: user.displayName || user.email?.split('@')[0],
           id: user.uid,
           uid: user.uid,
           token: await user.getIdToken(),
-          rol: 'usuario',
-          status: 'active'
+          rol: userData['role'] || userData['rol'] || 'usuario', // Usar notación de corchetes
+          status: userData['status'] || 'active'
         };
 
         this.loggedIn.next(true);
-        this.currentUser.next(userData);
-        localStorage.setItem('custom_user', JSON.stringify(userData));
-        localStorage.setItem('token', userData.token);
-      } else {
+        this.currentUser.next(fullUserData);
+        localStorage.setItem('custom_user', JSON.stringify(fullUserData));
+        localStorage.setItem('token', fullUserData.token);
+      }
+     else {
         console.warn("Correo no verificado");
         this.logout(); // Forzar logout si no está verificado
       }
@@ -95,7 +98,7 @@ async firebaseLogin(email: string, password: string): Promise<boolean> {
 
   isAdmin(): boolean {
     const user = this.getCurrentUserValue();
-    return user?.rol === 'admin';
+    return user?.rol?.toLowerCase() === 'admin';
   }
 
   async login(email: string, password: string): Promise<boolean> {

@@ -4,6 +4,7 @@ import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-admin',
@@ -26,12 +27,17 @@ export class AdminComponent implements OnInit {
 
   constructor(
     private adminService: AdminService,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router // Añade esta línea
   ) {}
 
   ngOnInit(): void {
-    this.loadData();
+  if (!this.authService.isAdmin()) {
+    this.router.navigate(['/dashboard']);
+    return;
   }
+  this.loadData();
+}
 
   loadData(): void {
     this.isLoading = true;
