@@ -13,46 +13,72 @@ import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
 export class AuthService {
   private loggedIn = new BehaviorSubject<boolean>(false);
   private currentUser = new BehaviorSubject<any | null>(null);
+   private initialized = false;
 
-constructor(private http: HttpClient, private router: Router) {
-  const auth = getAuth();
+   constructor(private http: HttpClient, private router: Router) {
+    this.initializeAuthState();
+  }
 
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      await user.reload();
-      if (user.emailVerified) {
-        // Obtener datos adicionales de Firestore
-        const db = getFirestore();
-        const userRef = doc(db, 'users', user.uid);
-        const userDoc = await getDoc(userRef);
-        
-        const userData = userDoc.exists() ? userDoc.data() : {};
+  private initializeAuthState() {
+    if (this.initialized) return;
+    this.initialized = true;
 
-        const fullUserData = {
-          email: user.email,
-          name: user.displayName || user.email?.split('@')[0],
-          id: user.uid,
-          uid: user.uid,
-          token: await user.getIdToken(),
-          rol: userData['role'] || userData['rol'] || 'usuario', // Usar notación de corchetes
-          status: userData['status'] || 'active'
-        };
-
-        this.loggedIn.next(true);
-        this.currentUser.next(fullUserData);
-        localStorage.setItem('custom_user', JSON.stringify(fullUserData));
-        localStorage.setItem('token', fullUserData.token);
+    const auth = getAuth();
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        await user.reload();
+        if (user.emailVerified) {
+          await this.loadUserData(user);
+        } else {
+          this.handleUnverifiedUser();
+        }
+      } else {
+        this.handleNoUser();
       }
-     else {
-        console.warn("Correo no verificado");
-        this.logout(); // Forzar logout si no está verificado
-      }
-    } else {
-      this.loggedIn.next(false);
-      this.currentUser.next(null);
+    });
+  }
+
+  private async loadUserData(user: any) {
+    try {
+      const db = getFirestore();
+      const userRef = doc(db, 'users', user.uid);
+      const userDoc = await getDoc(userRef);
+      
+      const userData = userDoc.exists() ? userDoc.data() : {};
+      const fullUserData = {
+        email: user.email,
+        name: user.displayName || user.email?.split('@')[0],
+        id: user.uid,
+        uid: user.uid,
+        token: await user.getIdToken(),
+        rol: userData['role'] || userData['rol'] || 'usuario',
+        status: userData['status'] || 'active'
+      };
+
+      this.loggedIn.next(true);
+      this.currentUser.next(fullUserData);
+      localStorage.setItem('custom_user', JSON.stringify(fullUserData));
+      localStorage.setItem('token', fullUserData.token);
+    } catch (error) {
+      console.error('Error loading user data:', error);
+      this.handleNoUser();
     }
-  });
-}
+  }
+
+  private handleUnverifiedUser() {
+    this.loggedIn.next(false);
+    this.currentUser.next(null);
+    localStorage.removeItem('custom_user');
+    localStorage.removeItem('token');
+    this.router.navigate(['/login'], { 
+      queryParams: { message: 'Por favor verifica tu correo electrónico' } 
+    });
+  }
+
+  private handleNoUser() {
+    this.loggedIn.next(false);
+    this.currentUser.next(null);
+  }
 
 async firebaseLogin(email: string, password: string): Promise<boolean> {
   const auth = getAuth();
@@ -63,8 +89,29 @@ async firebaseLogin(email: string, password: string): Promise<boolean> {
     throw { code: 'email_not_verified', message: 'Correo no verificado' };
   }
 
-  // Ahora sí, haz el login con tu backend
-  return await this.login(email, password);
+  // Obtener datos actualizados del usuario
+  const db = getFirestore();
+  const userRef = doc(db, 'users', userCredential.user.uid);
+  const userDoc = await getDoc(userRef);
+  
+  const userData = userDoc.exists() ? userDoc.data() : {};
+  const fullUserData = {
+    email: userCredential.user.email,
+    name: userCredential.user.displayName || userCredential.user.email?.split('@')[0],
+    id: userCredential.user.uid,
+    uid: userCredential.user.uid,
+    token: await userCredential.user.getIdToken(),
+    rol: userData['role'] || userData['rol'] || 'usuario',
+    status: userData['status'] || 'active'
+  };
+
+  // Actualizar el estado del usuario
+  this.loggedIn.next(true);
+  this.currentUser.next(fullUserData);
+  localStorage.setItem('custom_user', JSON.stringify(fullUserData));
+  localStorage.setItem('token', fullUserData.token);
+
+  return true;
 }
   async firebaseRegister(name: string, email: string, password: string): Promise<boolean> {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);

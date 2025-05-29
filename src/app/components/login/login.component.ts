@@ -54,8 +54,14 @@ async onSubmit(): Promise<void> {
         localStorage.setItem('rememberedEmail', this.email);
       } else {
         localStorage.removeItem('rememberedEmail');
-       }
-     this.router.navigate(['/dashboard']);
+      }
+      
+      // Verificar si es admin y redirigir adecuadamente
+      if (this.authService.isAdmin()) {
+        this.router.navigate(['/admin']);
+      } else {
+        this.router.navigate(['/dashboard']);
+      }
     }
   } catch (error: any) {
     // Mostrar directamente el mensaje del backend

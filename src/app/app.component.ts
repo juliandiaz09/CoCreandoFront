@@ -4,7 +4,7 @@ import { AuthService } from './services/auth.service';
 import { CommonModule } from '@angular/common';
 import { UserDisplayPipe } from './pipes/user-display.pipe';
 import { NotificationService, Notificacion } from './services/notification.service';
-import { Subscription } from 'rxjs';
+import { Subscription, BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -20,6 +20,7 @@ export class AppComponent implements OnInit, OnDestroy {
   notifications: Notificacion[] = [];
   private notificationsSub!: Subscription;
   private authSub!: Subscription;
+  isLoading$ = new BehaviorSubject<boolean>(true);
 
   constructor(
     public authService: AuthService,
@@ -36,7 +37,11 @@ export class AppComponent implements OnInit, OnDestroy {
     });
 
     // Cargar notificaciones cuando el usuario está autenticado
+    this.isLoading$.next(true);
+
     this.authSub = this.authService.isAuthenticated$.subscribe(isAuth => {
+      this.isLoading$.next(false);
+      
       if (isAuth) {
         const userId = this.authService.getCurrentUserValue()?.uid;
         if (userId) {
