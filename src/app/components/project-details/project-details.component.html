@@ -16,7 +16,7 @@
           <h2>Retos y desafíos</h2>
           <p>{{project.risksAndChallenges}}</p>
         </div>
-  
+
         <div class="project-updates">
           <h2>Actualizaciones</h2>
           <div class="update" *ngFor="let update of project.updates">
@@ -28,6 +28,11 @@
       </div>
   
       <div class="sidebar">
+        <div class="project-status" [class.pending]="project.status === 'pending'"
+          [class.approved]="project.status === 'approved'"
+          [class.rejected]="project.status === 'rejected'">
+          <h3>Estado: {{ project.status | uppercase }}</h3>
+        </div>
         <div class="progress-container">
           <div class="progress-bar">
             <div class="progress-fill" [style.width]="(project.collected / project.goal * 100) + '%'"></div>

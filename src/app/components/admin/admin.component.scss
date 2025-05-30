@@ -126,3 +126,19 @@ table {
   color: #4CAF50;
   font-weight: bold;
 }
+
+// admin.component.scss
+.pending {
+  color: #ff9800; // naranja
+  font-weight: bold;
+}
+
+.approved {
+  color: #4caf50; // verde
+  font-weight: bold;
+}
+
+.rejected {
+  color: #f44336; // rojo
+  font-weight: bold;
+}

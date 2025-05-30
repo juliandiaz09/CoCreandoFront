@@ -69,27 +69,29 @@ export class AdminService {
   }
 
   approveProject(projectId: string): Observable<any> {
-    return this.http.put(`${this.apiUrl}/proyecto/actualizarProyecto/${projectId}`, 
-      { status: 'approved' },
-      { 
-        headers: this.getHeaders(),
-        withCredentials: true 
-      }
-    );
-  }
+  return this.http.put(
+    `${this.apiUrl}/proyecto/aprobarProyecto/${projectId}`, 
+    {},  // Cuerpo vacío ya que solo cambiamos el estado
+    { headers: this.getHeaders(), withCredentials: true }
+  );
+}
 
   rejectProject(projectId: string): Observable<any> {
-    return this.http.put(`${this.apiUrl}/proyecto/actualizarProyecto/${projectId}`, 
-      { status: 'rejected' },
-      { 
-        headers: this.getHeaders(),
-        withCredentials: true 
-      }
-    );
-  }
+  return this.http.put(
+    `${this.apiUrl}/proyecto/rechazarProyecto/${projectId}`, 
+    {},
+    { headers: this.getHeaders(), withCredentials: true }
+  );
+}
 
   getPendingProjects(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/proyecto/listarProyectosStatus/pending`, {
+      headers: this.getHeaders(),
+      withCredentials: true
+    });
+  }
+  getAllProjects(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/proyecto/listarProyectos`, {
       headers: this.getHeaders(),
       withCredentials: true
     });

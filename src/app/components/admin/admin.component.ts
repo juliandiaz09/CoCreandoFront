@@ -16,6 +16,7 @@ import { Router } from '@angular/router'
 export class AdminComponent implements OnInit {
   users: any[] = [];
   pendingProjects: any[] = [];
+  allProjects: any[] = []; // En lugar de pendingProjects
   filteredUsers: any[] = [];
   filteredProjects: any[] = [];
   searchUserTerm = '';
@@ -48,10 +49,10 @@ export class AdminComponent implements OnInit {
         this.users = users;
         this.filteredUsers = [...users];
         
-        this.adminService.getPendingProjects().subscribe({
+        this.adminService.getAllProjects().subscribe({
           next: (projects) => {
-            this.pendingProjects = projects;
-            this.filteredProjects = [...projects];
+            this.allProjects = projects;
+            this.filteredProjects = [...projects]; // Inicializar con todos los proyectos
             this.isLoading = false;
           },
           error: (err) => {
@@ -89,10 +90,15 @@ export class AdminComponent implements OnInit {
   }
 
   filterProjects(): void {
-    this.filteredProjects = this.pendingProjects.filter(project => {
+    // Filtrar sobre todos los proyectos (allProjects)
+    this.filteredProjects = this.allProjects.filter(project => {
       const matchesSearch = project.title.toLowerCase().includes(this.searchProjectTerm.toLowerCase()) || 
                           project.description.toLowerCase().includes(this.searchProjectTerm.toLowerCase());
-      const matchesStatus = this.selectedProjectStatus === 'all' || project.status === this.selectedProjectStatus;
+      
+      // Manejar todos los estados
+      const matchesStatus = this.selectedProjectStatus === 'all' || 
+                           project.status === this.selectedProjectStatus;
+      
       return matchesSearch && matchesStatus;
     });
   }
@@ -150,8 +156,12 @@ export class AdminComponent implements OnInit {
   approveProject(projectId: string): void {
     this.adminService.approveProject(projectId).subscribe({
       next: () => {
-        this.pendingProjects = this.pendingProjects.filter(p => p.id !== projectId);
-        this.filterProjects();
+        // Actualizar el estado localmente
+        const projectIndex = this.allProjects.findIndex(p => p.id === projectId);
+        if (projectIndex !== -1) {
+          this.allProjects[projectIndex].status = 'approved';
+        }
+        this.filterProjects(); // Reaplicar filtros
       },
       error: (err) => {
         console.error('Error approving project:', err);
@@ -163,8 +173,12 @@ export class AdminComponent implements OnInit {
   rejectProject(projectId: string): void {
     this.adminService.rejectProject(projectId).subscribe({
       next: () => {
-        this.pendingProjects = this.pendingProjects.filter(p => p.id !== projectId);
-        this.filterProjects();
+        // Actualizar el estado localmente
+        const projectIndex = this.allProjects.findIndex(p => p.id === projectId);
+        if (projectIndex !== -1) {
+          this.allProjects[projectIndex].status = 'rejected';
+        }
+        this.filterProjects(); // Reaplicar filtros
       },
       error: (err) => {
         console.error('Error rejecting project:', err);
@@ -172,7 +186,6 @@ export class AdminComponent implements OnInit {
       }
     });
   }
-
   refreshData(): void {
     this.loadData();
   }

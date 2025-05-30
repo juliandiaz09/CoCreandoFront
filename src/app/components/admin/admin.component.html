@@ -6,7 +6,7 @@
   </div>
 
   <div *ngIf="error" class="error-message">
-    <p>{{error}}</p>
+    <p>{{ error }}</p>
     <button (click)="refreshData()">Reintentar</button>
   </div>
 
@@ -14,10 +14,9 @@
     <!-- Sección de Usuarios -->
     <div class="admin-section">
       <h2>Gestión de Usuarios</h2>
-      
+
       <div class="filters">
-        <input type="text" [(ngModel)]="searchUserTerm" 
-               (input)="filterUsers()" placeholder="Buscar usuarios...">
+        <input type="text" [(ngModel)]="searchUserTerm" (input)="filterUsers()" placeholder="Buscar usuarios..." />
         <select [(ngModel)]="selectedUserRole" (change)="filterUsers()">
           <option value="all">Todos los roles</option>
           <option value="usuario">Usuario</option>
@@ -38,8 +37,8 @@
           </thead>
           <tbody>
             <tr *ngFor="let user of filteredUsers">
-              <td>{{user.name}}</td>
-              <td>{{user.email}}</td>
+              <td>{{ user.name }}</td>
+              <td>{{ user.email }}</td>
               <td>
                 <select [(ngModel)]="user.role" (change)="updateUserRole(user.id, user.role)">
                   <option value="usuario">Usuario</option>
@@ -51,12 +50,12 @@
                 <span *ngIf="user.status !== 'banned'" class="active-status">Activo</span>
               </td>
               <td>
-                <button *ngIf="user.status !== 'banned'" 
-                        (click)="banUser(user.id)" 
-                        class="danger">Banear</button>
-                <button *ngIf="user.status === 'banned'" 
-                        (click)="unbanUser(user.id)" 
-                        class="success">Desbanear</button>
+                <button *ngIf="user.status !== 'banned'" (click)="banUser(user.id)" class="danger">
+                  Banear
+                </button>
+                <button *ngIf="user.status === 'banned'" (click)="unbanUser(user.id)" class="success">
+                  Desbanear
+                </button>
               </td>
             </tr>
           </tbody>
@@ -70,10 +69,10 @@
     <!-- Sección de Proyectos -->
     <div class="admin-section">
       <h2>Gestión de Proyectos</h2>
-      
+
       <div class="filters">
-        <input type="text" [(ngModel)]="searchProjectTerm" 
-               (input)="filterProjects()" placeholder="Buscar proyectos...">
+        <input type="text" [(ngModel)]="searchProjectTerm" (input)="filterProjects()"
+          placeholder="Buscar proyectos..." />
         <select [(ngModel)]="selectedProjectStatus" (change)="filterProjects()">
           <option value="pending">Pendientes</option>
           <option value="approved">Aprobados</option>
@@ -98,11 +97,20 @@
               <td>{{project.title}}</td>
               <td>{{project.creator?.name || project.creator}}</td>
               <td>{{project.category}}</td>
-              <td>{{project.status}}</td>
+              <td>
+                <span [class.pending]="project.status === 'pending'" [class.approved]="project.status === 'approved'"
+                  [class.rejected]="project.status === 'rejected'">
+                  {{project.status | uppercase}}
+                </span>
+              </td>
               <td>
                 <div class="action-buttons">
-                  <button *ngIf="project.status === 'pending'" (click)="approveProject(project.id)" class="success">Aprobar</button>
-                  <button *ngIf="project.status === 'pending'" (click)="rejectProject(project.id)" class="danger">Rechazar</button>
+                  <button (click)="approveProject(project.id)"
+                    class="success">Aprobar</button>
+
+                  <button (click)="rejectProject(project.id)"
+                    class="danger">Rechazar</button>
+
                   <a [routerLink]="['/project', project.id]" class="button">Ver</a>
                 </div>
               </td>
@@ -110,7 +118,8 @@
           </tbody>
         </table>
         <div *ngIf="filteredProjects.length === 0" class="no-results">
-          No se encontraron proyectos con los filtros aplicados.
+          No se encontraron proyectos con los filtros aplicados
+          o para ser aprobados o rechazados.
         </div>
       </div>
     </div>

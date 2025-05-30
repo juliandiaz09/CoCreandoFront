@@ -8,16 +8,16 @@
 
   <div class="filters">
     <div class="search-filter">
-      <input 
-        type="text" 
-        [(ngModel)]="searchTerm" 
-        (input)="onSearch()" 
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (input)="onSearch()"
         placeholder="Buscar proyectos..."
-      >
+      />
     </div>
     <div class="category-filter">
       <select [(ngModel)]="selectedCategory" (change)="onCategoryChange()">
-        <option *ngFor="let cat of categories" [value]="cat">{{cat}}</option>
+        <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
       </select>
     </div>
   </div>
@@ -27,7 +27,7 @@
   </div>
 
   <div *ngIf="error" class="error-message">
-    <p>{{error}}</p>
+    <p>{{ error }}</p>
     <button (click)="loadProjects()">Reintentar</button>
   </div>
 
@@ -37,44 +37,62 @@
     </div>
 
     <div class="projects-grid">
-      <div 
-        class="project-card" 
+      <div
+        class="project-card"
         *ngFor="let project of filteredProjects; trackBy: trackByProjectId"
         (click)="viewDetails(project.id)"
       >
         <div class="project-image">
-          <img [src]="project.creator?.avatar || 'assets/default-project.jpg'" alt="Imagen del proyecto">
+          <img
+            [src]="project.creator?.avatar || 'assets/default-project.jpg'"
+            alt="Imagen del proyecto"
+          />
         </div>
         <div class="project-content">
-          <h3>{{project.title}}</h3>
-          <p class="description">{{project.description}}</p>
-          <div class="category-tag">{{project.category}}</div>
-          
+          <h3>{{ project.title }}</h3>
+          <p class="description">{{ project.description }}</p>
+          <div class="category-tag">{{ project.category }}</div>
+          <div
+            class="category-tag"
+            [class.pending]="project.status === 'pending'"
+            [class.approved]="project.status === 'approved'"
+            [class.rejected]="project.status === 'rejected'"
+          >
+            {{ project.status | uppercase }}
+          </div>
+
           <div class="progress-container">
             <div class="progress-bar">
-              <div 
-                class="progress-fill" 
+              <div
+                class="progress-fill"
                 [style.width]="getProgressPercentage(project) + '%'"
               ></div>
             </div>
             <div class="progress-info">
-              <span class="percentage">{{getProgressPercentage(project).toFixed(0)}}%</span>
-              <span class="days-left">{{getDaysRemaining(project.deadline)}} días restantes</span>
+              <span class="percentage"
+                >{{ getProgressPercentage(project).toFixed(0) }}%</span
+              >
+              <span class="days-left"
+                >{{ getDaysRemaining(project.deadline) }} días restantes</span
+              >
             </div>
           </div>
-          
+
           <div class="stats">
             <div class="stat">
               <span class="label">Recaudado:</span>
-              <span class="value">${{project.collected | number}}</span>
+              <span class="value">${{ project.collected | number }}</span>
             </div>
             <div class="stat">
               <span class="label">Meta:</span>
-              <span class="value">${{project.goal | number}}</span>
+              <span class="value">${{ project.goal | number }}</span>
             </div>
           </div>
-          
-          <button class="button-primary" (click)="viewDetails(project.id); $event.stopPropagation()">
+
+          <button
+            class="button-primary"
+            (click)="viewDetails(project.id); $event.stopPropagation()"
+          >
             Ver Detalles
           </button>
         </div>
