@@ -81,38 +81,71 @@ export class AuthService {
   }
 
 async firebaseLogin(email: string, password: string): Promise<boolean> {
-  const auth = getAuth();
-  const userCredential = await signInWithEmailAndPassword(auth, email, password);
-  await userCredential.user.reload();
+  try {
+    const backendResponse: any = await this.http.post('http://127.0.0.1:5000/login', {
+      email,
+      password
+    }).toPromise();
 
-  if (!userCredential.user.emailVerified) {
-    throw { code: 'email_not_verified', message: 'Correo no verificado' };
+    if (!backendResponse?.success) {
+      throw {
+        code: backendResponse?.code || 'backend_error',
+        message: backendResponse?.message || 'Error en la validación del backend'
+      };
+    }
+
+    const auth = getAuth();
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    await userCredential.user.reload();
+
+    if (!userCredential.user.emailVerified) {
+      throw { 
+        code: 'email_not_verified', 
+        message: 'Por favor verifica tu correo electrónico antes de iniciar sesión' 
+      };
+    }
+
+    const db = getFirestore();
+    const userRef = doc(db, 'users', userCredential.user.uid);
+    const userDoc = await getDoc(userRef);
+    
+    const userData = userDoc.exists() ? userDoc.data() : {};
+    const fullUserData = {
+      email: userCredential.user.email,
+      name: userCredential.user.displayName || userCredential.user.email?.split('@')[0],
+      id: userCredential.user.uid,
+      uid: userCredential.user.uid,
+      token: await userCredential.user.getIdToken(),
+      role: userData['role'] || userData['rol'] || 'usuario',
+      status: userData['status'] || 'active'
+    };
+
+    this.loggedIn.next(true);
+    this.currentUser.next(fullUserData);
+    localStorage.setItem('custom_user', JSON.stringify(fullUserData));
+    localStorage.setItem('token', fullUserData.token);
+
+    return true;
+  } catch (error: any) {
+    console.error('Login error:', error);
+    
+    if (error.code?.startsWith('auth/')) {
+      switch (error.code) {
+        case 'auth/user-not-found':
+          throw { code: 'user_not_found', message: 'Usuario no encontrado' };
+        case 'auth/wrong-password':
+          throw { code: 'wrong_credentials', message: 'Contraseña incorrecta' };
+        case 'auth/too-many-requests':
+          throw { code: 'too_many_attempts', message: 'Demasiados intentos. Intenta más tarde' };
+        default:
+          throw { code: 'firebase_error', message: error.message || 'Error de autenticación' };
+      }
+    }
+    
+    throw error;
   }
-
-  // Obtener datos actualizados del usuario
-  const db = getFirestore();
-  const userRef = doc(db, 'users', userCredential.user.uid);
-  const userDoc = await getDoc(userRef);
-  
-  const userData = userDoc.exists() ? userDoc.data() : {};
-  const fullUserData = {
-    email: userCredential.user.email,
-    name: userCredential.user.displayName || userCredential.user.email?.split('@')[0],
-    id: userCredential.user.uid,
-    uid: userCredential.user.uid,
-    token: await userCredential.user.getIdToken(),
-    role: userData['role'] || userData['rol'] || 'usuario',
-    status: userData['status'] || 'active'
-  };
-
-  // Actualizar el estado del usuario
-  this.loggedIn.next(true);
-  this.currentUser.next(fullUserData);
-  localStorage.setItem('custom_user', JSON.stringify(fullUserData));
-  localStorage.setItem('token', fullUserData.token);
-
-  return true;
 }
+
   async firebaseRegister(name: string, email: string, password: string): Promise<boolean> {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
@@ -148,6 +181,7 @@ async firebaseLogin(email: string, password: string): Promise<boolean> {
     return user?.role?.toLowerCase() === 'admin';
   }
 
+  /*
   async login(email: string, password: string): Promise<boolean> {
     try {
       const response: any = await this.http.post('http://127.0.0.1:5000/login', {
@@ -188,7 +222,7 @@ async firebaseLogin(email: string, password: string): Promise<boolean> {
       throw error;
     }
   }
-
+*/
   async fetchUserProfile(): Promise<any> {
     try {
       const response = await this.http.get('http://127.0.0.1:5000/api/users/me').toPromise();
