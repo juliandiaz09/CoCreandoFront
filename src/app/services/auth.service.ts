@@ -82,7 +82,7 @@ export class AuthService {
 
 async firebaseLogin(email: string, password: string): Promise<boolean> {
   try {
-    const backendResponse: any = await this.http.post('https://cocreandoback.onrender.com', {
+    const backendResponse: any = await this.http.post('https://cocreandoback.onrender.com/login', {
       email,
       password
     }).toPromise();
