@@ -2,7 +2,7 @@ import { Environment } from './environment.model';
 
 export const environment: Environment = {
   production: false,
-  apiUrl: 'http://localhost:5000',
+  apiUrl: 'https://cocreandoback.onrender.com',
   payuSandbox: true,
   firebaseConfig: {
     apiKey: "AIzaSyDnCfzF5psHLcnmbeJGrBuWpxOkUp01Lfo",

@@ -14,7 +14,7 @@ interface ProjectResponse {
 
 @Injectable({ providedIn: 'root' })
 export class ProjectService {
-  private apiUrl = environment.apiUrl || 'http://localhost:5000';
+  private apiUrl = environment.apiUrl || 'https://cocreandoback.onrender.com';
 
   constructor(
     private http: HttpClient,

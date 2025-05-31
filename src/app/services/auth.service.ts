@@ -82,7 +82,7 @@ export class AuthService {
 
 async firebaseLogin(email: string, password: string): Promise<boolean> {
   try {
-    const backendResponse: any = await this.http.post('http://127.0.0.1:5000/login', {
+    const backendResponse: any = await this.http.post('https://cocreandoback.onrender.com', {
       email,
       password
     }).toPromise();
@@ -225,7 +225,7 @@ async firebaseLogin(email: string, password: string): Promise<boolean> {
 */
   async fetchUserProfile(): Promise<any> {
     try {
-      const response = await this.http.get('http://127.0.0.1:5000/api/users/me').toPromise();
+      const response = await this.http.get('https://cocreandoback.onrender.com/api/users/me').toPromise();
       this.currentUser.next(response);
       localStorage.setItem('custom_user', JSON.stringify(response));
       return response;
@@ -238,7 +238,7 @@ async firebaseLogin(email: string, password: string): Promise<boolean> {
   async register(name: string, email: string, password: string): Promise<boolean> {
     try {
       // Paso 1: validar con el backend (solo validación, no crear usuario)
-      const response: any = await this.http.post('http://127.0.0.1:5000/registro', {
+      const response: any = await this.http.post('https://cocreandoback.onrender.com/registro', {
         name,
         email,
         password

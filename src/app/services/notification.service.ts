@@ -23,7 +23,7 @@ export class NotificationService {
   public notifications$ = this.notificationsSubject.asObservable();
 
   constructor() {
-    this.socket = io("http://localhost:5000"); // Asegúrate de definir esto en environment.ts
+    this.socket = io("https://cocreandoback.onrender.com"); // Asegúrate de definir esto en environment.ts
 
     const userId = localStorage.getItem('user_id');
     if (userId) {
