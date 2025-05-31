@@ -7,7 +7,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "clean-install": "rm -rf node_modules package-lock.json && npm install"
+    "clean-install": "rm -rf node_modules package-lock.json && npm install",
+    "deploy": "ng build --configuration production --base-href /CoCreandoFront/ && npx gh-pages -d dist/co-creando/browser -b produccion"
   },
   "private": true,
   "dependencies": {
