@@ -68,4 +68,27 @@ export class UserService {
       { withCredentials: true }
     );
   }
+  deleteAccount(userId: string): Observable<any> {
+  const token = this.getToken(); // Asumiendo que tienes un método getToken()
+  
+  const headers = new HttpHeaders({
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json'
+  });
+
+  return this.http.delete(`${this.apiUrl}/usuario/eliminarUsuario/${userId}`, { 
+    headers,
+    withCredentials: true 
+  }).pipe(
+    catchError((error: HttpErrorResponse) => {
+      console.error('Error deleting account:', error);
+      throw error;
+    })
+  );
+}
+
+private getToken(): string | null {
+  const userData = localStorage.getItem('custom_user');
+  return userData ? JSON.parse(userData).token : null;
+}
 }

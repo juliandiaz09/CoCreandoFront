@@ -4,47 +4,144 @@
   </div>
 
   <div *ngIf="error" class="error-message">
-    <p>{{error}}</p>
+    <p>{{ error }}</p>
     <button (click)="loadUserProfile()">Reintentar</button>
   </div>
 
   <div *ngIf="!isLoading && !error && user" class="profile-content">
     <div class="profile-header">
       <div class="avatar-container">
-        <img [src]="'https://help.seesaw.me/hc/article_attachments/29802779436429'" alt="Avatar" class="profile-avatar">
+        <img
+          [src]="'https://help.seesaw.me/hc/article_attachments/29802779436429'"
+          alt="Avatar"
+          class="profile-avatar"
+        />
       </div>
       <div class="profile-info">
-        <h1>{{user.name}}</h1>
-        <p class="email">{{user.email}}</p>
-        <p class="status">Estado: {{user.status}}</p>
-        <p class="role">Rol: {{user.role}}</p>
+        <h1>{{ user.name }}</h1>
+        <p class="email">{{ user.email }}</p>
+        <p class="status">Estado: {{ user.status }}</p>
+        <p class="role">Rol: {{ user.role }}</p>
         <p class="verificacion">Verificacion: TRUE</p>
-        <p class="login-count">Creacion: {{user.createdAt}}</p>
+        <p class="login-count">Creacion: {{ user.createdAt }}</p>
       </div>
     </div>
 
     <div class="profile-actions">
-      <button *ngIf="isCurrentUser" 
-              class="button-primary" 
-              (click)="navigateToProjectCreation()">
+      <button class="button-primary" (click)="navigateToProjectCreation()">
         Crear Nuevo Proyecto
+      </button>
+
+      <button
+        *ngIf="!isCurrentUser"
+        class="button-danger"
+        (click)="deleteAccount()"
+      >
+        Eliminar Cuenta
+      </button>
+
+      <button
+        class="button-secondary"
+        (click)="showChangePassword = !showChangePassword"
+      >
+        Cambiar Contraseña
       </button>
     </div>
 
+    <div *ngIf="showChangePassword" class="password-change-form">
+      <h3>Cambiar Contraseña</h3>
+
+      <!-- Mensajes de éxito/error -->
+      <div *ngIf="passwordChangeSuccess" class="alert alert-success">
+        Contraseña cambiada exitosamente!
+      </div>
+
+      <div *ngIf="passwordChangeError" class="alert alert-error">
+        {{ passwordChangeError }}
+      </div>
+
+      <form
+        (ngSubmit)="changePassword(oldPassword, newPassword, confirmPassword)"
+      >
+        <div class="form-group">
+          <label for="oldPassword">Contraseña Actual:</label>
+          <input
+            type="password"
+            id="oldPassword"
+            [(ngModel)]="oldPassword"
+            name="oldPassword"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="newPassword"
+            >Nueva Contraseña (mínimo 6 caracteres):</label
+          >
+          <input
+            type="password"
+            id="newPassword"
+            [(ngModel)]="newPassword"
+            name="newPassword"
+            required
+            minlength="6"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">Confirmar Nueva Contraseña:</label>
+          <input
+            type="password"
+            id="confirmPassword"
+            [(ngModel)]="confirmPassword"
+            name="confirmPassword"
+            required
+          />
+        </div>
+
+        <div class="form-actions">
+          <button
+            type="submit"
+            class="button-primary"
+            [disabled]="!oldPassword || !newPassword || !confirmPassword"
+          >
+            Cambiar Contraseña
+          </button>
+          <button
+            type="button"
+            class="button-secondary"
+            (click)="showChangePassword = false; passwordChangeError = null"
+          >
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+
     <div *ngIf="userProjects.length > 0" class="projects-section">
-      <h2>Mis Proyectos ({{userProjects.length}})</h2>
+      <h2>Mis Proyectos ({{ userProjects.length }})</h2>
       <div class="projects-grid">
         <div *ngFor="let project of userProjects" class="project-card">
-          <h3>{{project.title}}</h3>
-          <p class="category">{{project.category}}</p>
-          <p>{{project.description}}</p>
+          <h3>{{ project.title }}</h3>
+          <p class="category">{{ project.category }}</p>
+          <p>{{ project.description }}</p>
           <div class="project-stats">
-            <span>Recaudado: ${{project.collected | number}} / ${{project.goal | number}}</span>
-            <span>{{(project.collected / project.goal * 100).toFixed(0)}}%</span>
+            <span
+              >Recaudado: ${{ project.collected | number }} / ${{
+                project.goal | number
+              }}</span
+            >
+            <span
+              >{{
+                ((project.collected / project.goal) * 100).toFixed(0)
+              }}%</span
+            >
           </div>
           <div class="project-actions">
-            <button class="button-secondary" 
-                    (click)="navigateToProjectAnalytics(project.id)">
+            <button
+              class="button-secondary"
+              (click)="navigateToProjectAnalytics(project.id)"
+            >
               Ver Análisis
             </button>
           </div>

@@ -6,6 +6,9 @@ import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, updateP
 import { auth } from '../firebase.config';
 import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
 import { sendPasswordResetEmail } from 'firebase/auth';
+import { Observable, throwError, from } from 'rxjs';
+import { switchMap, catchError } from 'rxjs/operators';
+import { updatePassword } from 'firebase/auth';
 
 
 @Injectable({
@@ -14,9 +17,9 @@ import { sendPasswordResetEmail } from 'firebase/auth';
 export class AuthService {
   private loggedIn = new BehaviorSubject<boolean>(false);
   private currentUser = new BehaviorSubject<any | null>(null);
-   private initialized = false;
+  private initialized = false;
 
-   constructor(private http: HttpClient, private router: Router) {
+  constructor(private http: HttpClient, private router: Router) {
     this.initializeAuthState();
   }
 
@@ -44,7 +47,7 @@ export class AuthService {
       const db = getFirestore();
       const userRef = doc(db, 'users', user.uid);
       const userDoc = await getDoc(userRef);
-      
+
       const userData = userDoc.exists() ? userDoc.data() : {};
       const fullUserData = {
         email: user.email,
@@ -71,8 +74,8 @@ export class AuthService {
     this.currentUser.next(null);
     localStorage.removeItem('custom_user');
     localStorage.removeItem('token');
-    this.router.navigate(['/login'], { 
-      queryParams: { message: 'Por favor verifica tu correo electrónico' } 
+    this.router.navigate(['/login'], {
+      queryParams: { message: 'Por favor verifica tu correo electrónico' }
     });
   }
 
@@ -81,71 +84,71 @@ export class AuthService {
     this.currentUser.next(null);
   }
 
-async firebaseLogin(email: string, password: string): Promise<boolean> {
-  try {
-    const backendResponse: any = await this.http.post('https://cocreandoback.onrender.com/login', {
-      email,
-      password
-    }).toPromise();
+  async firebaseLogin(email: string, password: string): Promise<boolean> {
+    try {
+      const backendResponse: any = await this.http.post('https://cocreandoback.onrender.com/login', {
+        email,
+        password
+      }).toPromise();
 
-    if (!backendResponse?.success) {
-      throw {
-        code: backendResponse?.code || 'backend_error',
-        message: backendResponse?.message || 'Error en la validación del backend'
-      };
-    }
-
-    const auth = getAuth();
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    await userCredential.user.reload();
-
-    if (!userCredential.user.emailVerified) {
-      throw { 
-        code: 'email_not_verified', 
-        message: 'Por favor verifica tu correo electrónico antes de iniciar sesión' 
-      };
-    }
-
-    const db = getFirestore();
-    const userRef = doc(db, 'users', userCredential.user.uid);
-    const userDoc = await getDoc(userRef);
-    
-    const userData = userDoc.exists() ? userDoc.data() : {};
-    const fullUserData = {
-      email: userCredential.user.email,
-      name: userCredential.user.displayName || userCredential.user.email?.split('@')[0],
-      id: userCredential.user.uid,
-      uid: userCredential.user.uid,
-      token: await userCredential.user.getIdToken(),
-      role: userData['role'] || userData['rol'] || 'usuario',
-      status: userData['status'] || 'active'
-    };
-
-    this.loggedIn.next(true);
-    this.currentUser.next(fullUserData);
-    localStorage.setItem('custom_user', JSON.stringify(fullUserData));
-    localStorage.setItem('token', fullUserData.token);
-
-    return true;
-  } catch (error: any) {
-    console.error('Login error:', error);
-    
-    if (error.code?.startsWith('auth/')) {
-      switch (error.code) {
-        case 'auth/user-not-found':
-          throw { code: 'user_not_found', message: 'Usuario no encontrado' };
-        case 'auth/wrong-password':
-          throw { code: 'wrong_credentials', message: 'Contraseña incorrecta' };
-        case 'auth/too-many-requests':
-          throw { code: 'too_many_attempts', message: 'Demasiados intentos. Intenta más tarde' };
-        default:
-          throw { code: 'firebase_error', message: error.message || 'Error de autenticación' };
+      if (!backendResponse?.success) {
+        throw {
+          code: backendResponse?.code || 'backend_error',
+          message: backendResponse?.message || 'Error en la validación del backend'
+        };
       }
+
+      const auth = getAuth();
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      await userCredential.user.reload();
+
+      if (!userCredential.user.emailVerified) {
+        throw {
+          code: 'email_not_verified',
+          message: 'Por favor verifica tu correo electrónico antes de iniciar sesión'
+        };
+      }
+
+      const db = getFirestore();
+      const userRef = doc(db, 'users', userCredential.user.uid);
+      const userDoc = await getDoc(userRef);
+
+      const userData = userDoc.exists() ? userDoc.data() : {};
+      const fullUserData = {
+        email: userCredential.user.email,
+        name: userCredential.user.displayName || userCredential.user.email?.split('@')[0],
+        id: userCredential.user.uid,
+        uid: userCredential.user.uid,
+        token: await userCredential.user.getIdToken(),
+        role: userData['role'] || userData['rol'] || 'usuario',
+        status: userData['status'] || 'active'
+      };
+
+      this.loggedIn.next(true);
+      this.currentUser.next(fullUserData);
+      localStorage.setItem('custom_user', JSON.stringify(fullUserData));
+      localStorage.setItem('token', fullUserData.token);
+
+      return true;
+    } catch (error: any) {
+      console.error('Login error:', error);
+
+      if (error.code?.startsWith('auth/')) {
+        switch (error.code) {
+          case 'auth/user-not-found':
+            throw { code: 'user_not_found', message: 'Usuario no encontrado' };
+          case 'auth/wrong-password':
+            throw { code: 'wrong_credentials', message: 'Contraseña incorrecta' };
+          case 'auth/too-many-requests':
+            throw { code: 'too_many_attempts', message: 'Demasiados intentos. Intenta más tarde' };
+          default:
+            throw { code: 'firebase_error', message: error.message || 'Error de autenticación' };
+        }
+      }
+
+      throw error;
     }
-    
-    throw error;
   }
-}
 
   async firebaseRegister(name: string, email: string, password: string): Promise<boolean> {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -173,7 +176,7 @@ async firebaseLogin(email: string, password: string): Promise<boolean> {
       await auth.currentUser.reload(); // 🔄 Forzar actualización del usuario
       return auth.currentUser.emailVerified;
     }
-    
+
     return false;
   }
 
@@ -235,13 +238,13 @@ async firebaseLogin(email: string, password: string): Promise<boolean> {
       console.error('Error al enviar correo de recuperación:', error);
       // Manejo de errores específicos de Firebase
       let errorMessage = 'Error al enviar el correo. Intenta nuevamente.';
-      
+
       if (error.code === 'auth/user-not-found') {
         errorMessage = 'No existe una cuenta con este correo.';
       } else if (error.code === 'auth/too-many-requests') {
         errorMessage = 'Demasiados intentos. Espera antes de reintentar.';
       }
-      
+
       throw new Error(errorMessage);
     }
   }
@@ -306,5 +309,37 @@ async firebaseLogin(email: string, password: string): Promise<boolean> {
 
   getCurrentUserValue(): any | null {
     return this.currentUser.value;
+  }
+
+
+  changePassword(oldPassword: string, newPassword: string): Observable<void> {
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (!user || !user.email) {
+      return throwError(() => new Error('No hay usuario autenticado'));
+    }
+
+    // Primero reautenticar
+    return from(signInWithEmailAndPassword(auth, user.email, oldPassword)).pipe(
+      switchMap((userCredential) => {
+        // Luego cambiar la contraseña
+        return from(updatePassword(userCredential.user, newPassword));
+      }),
+      catchError((error) => {
+        console.error('Error changing password:', error);
+        let errorMessage = 'Revisa los campos ingresados o no es la contraseña actual o la contraseña nueba debe tener: -una letra -un numero - un caracter';
+
+        if (error.code === 'auth/wrong-password') {
+          errorMessage = 'La contraseña actual es incorrecta';
+        } else if (error.code === 'auth/requires-recent-login') {
+          errorMessage = 'La sesión es muy antigua. Por favor cierra sesión y vuelve a iniciar';
+        } else if (error.code === 'auth/weak-password') {
+          errorMessage = 'La nueva contraseña es muy débil (mínimo 6 caracteres)';
+        }
+
+        return throwError(() => new Error(errorMessage));
+      })
+    );
   }
 }
