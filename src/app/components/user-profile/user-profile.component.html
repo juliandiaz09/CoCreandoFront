@@ -16,10 +16,10 @@
       <div class="profile-info">
         <h1>{{user.name}}</h1>
         <p class="email">{{user.email}}</p>
-        <p class="status">Estado: {{user.status || 'active'}}</p>
-        <p class="role">Rol: {{user.role || 'usuario'}}</p>
-        <p class="verificacion">Verificacion: {{user.email_verified || 'Falsee'}}</p>
-        <p class="login-count">Visitas: {{user.login_count || 0}}</p>
+        <p class="status">Estado: {{user.status}}</p>
+        <p class="role">Rol: {{user.role}}</p>
+        <p class="verificacion">Verificacion: TRUE</p>
+        <p class="login-count">Creacion: {{user.createdAt}}</p>
       </div>
     </div>
 

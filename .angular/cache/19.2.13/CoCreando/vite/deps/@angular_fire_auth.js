@@ -1,14 +1,4 @@
 import {
-  FirebaseApp,
-  FirebaseApps,
-  VERSION,
-  ɵAngularFireSchedulers,
-  ɵgetAllInstancesOf,
-  ɵgetDefaultInstanceOf,
-  ɵzoneWrap
-} from "./chunk-YK7QXC7W.js";
-import "./chunk-EBYWJCEW.js";
-import {
   AUTH_ERROR_CODES_MAP_DO_NOT_USE_INTERNALLY,
   ActionCodeOperation,
   ActionCodeURL,
@@ -96,6 +86,16 @@ import {
   verifyPasswordResetCode
 } from "./chunk-7WA6A4G4.js";
 import {
+  FirebaseApp,
+  FirebaseApps,
+  VERSION,
+  ɵAngularFireSchedulers,
+  ɵgetAllInstancesOf,
+  ɵgetDefaultInstanceOf,
+  ɵzoneWrap
+} from "./chunk-YK7QXC7W.js";
+import "./chunk-EBYWJCEW.js";
+import {
   Component,
   Deferred,
   ErrorFactory,
@@ -123,8 +123,8 @@ import {
   ɵɵdefineInjector,
   ɵɵdefineNgModule
 } from "./chunk-PJ432SIL.js";
-import "./chunk-BRF755KY.js";
 import "./chunk-OKKFPXIG.js";
+import "./chunk-BRF755KY.js";
 import {
   Observable,
   concatMap,
