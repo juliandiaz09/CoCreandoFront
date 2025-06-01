@@ -30,7 +30,7 @@
           <span class="checkmark"></span>
           Recordarme
         </label>
-        <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
+       <a (click)="navigateTo('/forgot-password')">¿Olvidaste tu contraseña?</a>
       </div>
 
       <button type="submit" class="login-button" [disabled]="loading">

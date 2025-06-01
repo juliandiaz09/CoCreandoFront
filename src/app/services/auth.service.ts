@@ -5,6 +5,7 @@ import { BehaviorSubject } from 'rxjs';
 import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, updateProfile, onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase.config';
 import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
+import { sendPasswordResetEmail } from 'firebase/auth';
 
 
 @Injectable({
@@ -181,6 +182,7 @@ async firebaseLogin(email: string, password: string): Promise<boolean> {
     return user?.role?.toLowerCase() === 'admin';
   }
 
+
   /*
   async login(email: string, password: string): Promise<boolean> {
     try {
@@ -223,6 +225,27 @@ async firebaseLogin(email: string, password: string): Promise<boolean> {
     }
   }
 */
+
+  async sendPasswordResetEmail(email: string): Promise<void> {
+    try {
+      const auth = getAuth();
+      await sendPasswordResetEmail(auth, email);
+      // Éxito: Firebase envía el correo automáticamente
+    } catch (error: any) {
+      console.error('Error al enviar correo de recuperación:', error);
+      // Manejo de errores específicos de Firebase
+      let errorMessage = 'Error al enviar el correo. Intenta nuevamente.';
+      
+      if (error.code === 'auth/user-not-found') {
+        errorMessage = 'No existe una cuenta con este correo.';
+      } else if (error.code === 'auth/too-many-requests') {
+        errorMessage = 'Demasiados intentos. Espera antes de reintentar.';
+      }
+      
+      throw new Error(errorMessage);
+    }
+  }
+
   async fetchUserProfile(): Promise<any> {
     try {
       const response = await this.http.get('https://cocreandoback.onrender.com/api/users/me').toPromise();

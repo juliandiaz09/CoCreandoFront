@@ -10,6 +10,7 @@ import { ProjectDetailsComponent } from './components/project-details/project-de
 import { ProjectCreationComponent } from './components/project-creation/project-creation.component';
 import { ProjectAnalyticsComponent } from './components/project-analytics/project-analytics.component';
 import { ProjectEditComponent } from './components/project-edit/project-edit.component'
+import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 
 export const routes: Routes = [
   { 
@@ -53,6 +54,7 @@ export const routes: Routes = [
     component: ProjectEditComponent,
     canActivate: [AuthGuard]
   },
+  { path: 'forgot-password', component: ForgotPasswordComponent },
   { 
     path: '**', 
     redirectTo: '/dashboard' 

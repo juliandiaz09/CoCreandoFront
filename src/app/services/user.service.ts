@@ -11,9 +11,7 @@ export class UserService {
   //private apiUrl = `${environment.apiUrl}/users`;
   private apiUrl = `${environment.apiUrl}`;
 
-
   constructor(private http: HttpClient) {}
-
   getCurrentUser(id: string): Observable<any> {
   const userDataRaw = localStorage.getItem('custom_user');
   if (!userDataRaw) {
@@ -44,7 +42,7 @@ export class UserService {
           email: userData.email,
           name: userData.name || userData.email.split('@')[0],
           role: 'usuario',
-          status: 'active'
+          status: 'active',
         };
         return of(basicUser);
       }

@@ -61,7 +61,6 @@ export class ProjectCreationComponent {
   get updates(): FormArray {
     return this.projectForm.get('updates') as FormArray;
   }
-
   createReward() {
     return this.fb.group({
       title: ['', Validators.required],
@@ -129,6 +128,19 @@ export class ProjectCreationComponent {
         date: update.date ? new Date(update.date).toISOString() : new Date().toISOString()
       })) : [];
 
+    const projectAvatars = [
+      'https://projectcor.com/es/wp-content/uploads/2019/05/gestion-de-proyectos.jpg',
+      'https://d2fl3xywvvllvq.cloudfront.net/wp-content/uploads/2019/10/nutcache-image-2-600x360.jpg',
+      'https://eadic.com/wp-content/uploads/2020/05/Proyecto-2-1.jpg',
+      'https://www.ceupe.com.ve/images/easyblog_articles/230/ges_proyec.png',
+      'https://acortar.link/25ILfh'
+    ];
+
+          // Función para seleccionar aleatoriamente
+    function getRandomProjectAvatar() {
+      const randomIndex = Math.floor(Math.random() * projectAvatars.length);
+      return projectAvatars[randomIndex];
+    }
     const projectData = {
       ...this.projectForm.value,
       deadline: formattedDeadline,
@@ -137,7 +149,7 @@ export class ProjectCreationComponent {
         name: currentUser.name,
         email: currentUser.email,
         bio: currentUser.bio || '',
-        avatar: currentUser.avatar || 'https://randomuser.me/api/portraits/lego/1.jpg'
+        avatar: getRandomProjectAvatar()
       },
       collected: 0,
       status: 'pending',
