@@ -321,3 +321,62 @@ $shadow-color: rgba(0, 0, 0, 0.1);
     }
   }
 }
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin: 1rem 0;
+}
+
+.project-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  h3 {
+    font-size: 1.25rem;
+    margin: 0 0 0.5rem 0;
+    color: #2e7d32;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+
+  .category {
+    font-size: 0.9rem;
+    color: #666;
+    margin: 0 0 0.5rem 0;
+    font-weight: bold;
+  }
+
+  p {
+    margin: 0.5rem 0;
+    color: #333;
+    line-height: 1.5;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Limita a 3 líneas */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .project-stats {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #666;
+
+    span {
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+  }
+}
