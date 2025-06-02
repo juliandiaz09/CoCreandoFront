@@ -1,94 +1,135 @@
 <div class="project-details-container" *ngIf="project">
-    <div class="project-header">
-      <h1>{{project.title}}</h1>
-      <p class="location">📍 {{project.location}}</p>
-      <p class="category">{{project.category}}</p>
-    </div>
-  
-    <div class="project-content">
-      <div class="main-content">
-        <div class="project-description">
-          <h2>Acerca de este proyecto</h2>
-          <p>{{project.longDescription}}</p>
-        </div>
-  
-        <div class="project-risks">
-          <h2>Retos y desafíos</h2>
-          <p>{{project.risksAndChallenges}}</p>
-        </div>
+  <div class="project-header">
+    <h1>{{ project.title }}</h1>
+    <p class="location">📍 {{ project.location }}</p>
+    <p class="category">{{ project.category }}</p>
 
-        <div class="project-updates">
-          <h2>Actualizaciones</h2>
-          <div class="update" *ngFor="let update of project.updates">
-            <h3>{{update.title}} <span class="date">{{update.date | date}}</span></h3>
-            <p>{{update.content}}</p>
-          </div>
-        </div>
-        <button (click)="navigateAnalisis()" class="analisisPro">Analisis de Proyecto</button>
+    <!-- Botones para el creador -->
+    <div class="creator-actions" *ngIf="isProjectCreator()">
+      <button
+        (click)="deleteProject()"
+        class="delete-button"
+        *ngIf="project.collected === 0"
+      >
+        Eliminar proyecto
+      </button>
+    </div>
+  </div>
+
+  <div class="project-content">
+    <div class="main-content">
+      <div class="project-description">
+        <h2>Acerca de este proyecto</h2>
+        <p>{{ project.longDescription }}</p>
       </div>
-  
-      <div class="sidebar">
-        <div class="project-status" [class.pending]="project.status === 'pending'"
-          [class.approved]="project.status === 'approved'"
-          [class.rejected]="project.status === 'rejected'">
-          <h3>Estado: {{ project.status | uppercase }}</h3>
+
+      <div class="project-risks">
+        <h2>Retos y desafíos</h2>
+        <p>{{ project.risksAndChallenges }}</p>
+      </div>
+
+      <div class="project-updates">
+        <h2>Actualizaciones</h2>
+        <div class="update" *ngFor="let update of project.updates">
+          <h3>
+            {{ update.title }}
+            <span class="date">{{ update.date | date }}</span>
+          </h3>
+          <p>{{ update.content }}</p>
         </div>
-        <div class="progress-container">
-          <div class="progress-bar">
-            <div class="progress-fill" [style.width]="(project.collected / project.goal * 100) + '%'"></div>
-          </div>
-          <div class="progress-stats">
-            <span class="percentage">{{(project.collected / project.goal * 100).toFixed(0)}}%</span>
-            <span class="amount">${{project.collected}} recaudados de ${{project.goal}}</span>
-          </div>
-          <div class="time-remaining">
-            <span>{{getDaysRemaining(project.deadline)}} días restantes</span>
+      </div>
+      <button (click)="navigateAnalisis()" class="analisisPro">
+        Analisis de Proyecto
+      </button>
+    </div>
+
+    <div class="sidebar">
+      <div
+        class="project-status"
+        [class.pending]="project.status === 'pending'"
+        [class.approved]="project.status === 'approved'"
+        [class.rejected]="project.status === 'rejected'"
+      >
+        <h3>Estado: {{ project.status | uppercase }}</h3>
+      </div>
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div
+            class="progress-fill"
+            [style.width]="(project.collected / project.goal) * 100 + '%'"
+          ></div>
+        </div>
+        <div class="progress-stats">
+          <span class="percentage"
+            >{{ ((project.collected / project.goal) * 100).toFixed(0) }}%</span
+          >
+          <span class="amount"
+            >${{ project.collected }} recaudados de ${{ project.goal }}</span
+          >
+        </div>
+        <div class="time-remaining">
+          <span>{{ getDaysRemaining(project.deadline) }} días restantes</span>
+        </div>
+      </div>
+
+      <div class="investment-section">
+        <h3>Invertir en este proyecto</h3>
+        <div class="form-group">
+          <label for="amount">Monto a invertir ($)</label>
+          <input
+            type="number"
+            id="amount"
+            [(ngModel)]="investmentAmount"
+            min="1"
+            [max]="project.goal - project.collected"
+            [disabled]="isProcessingPayment"
+          />
+        </div>
+        <button
+          class="invest-button"
+          (click)="invest()"
+          [disabled]="isProcessingPayment"
+        >
+          <span *ngIf="!isProcessingPayment">Invertir ahora</span>
+          <span *ngIf="isProcessingPayment">Procesando pago...</span>
+        </button>
+        <p class="note">
+          Serás redirigido a PayU para completar el pago de forma segura
+        </p>
+      </div>
+
+      <div class="rewards-section">
+        <h3>Recompensas</h3>
+        <div class="reward" *ngFor="let reward of project.rewards">
+          <h4>${{ reward.minimumAmount }} o más</h4>
+          <h5>{{ reward.title }}</h5>
+          <p>{{ reward.description }}</p>
+        </div>
+      </div>
+
+      <div class="creator-section">
+        <h3>Creador del proyecto</h3>
+        <div class="creator-info">
+          <img
+            [src]="project.creator.avatar"
+            alt="Avatar del creador"
+            class="creator-avatar"
+          />
+          <div class="creator-details">
+            <h4>{{ project.creator.name }}</h4>
+            <p>{{ project.creator.bio }}</p>
+            <a href="mailto:{{ project.creator.email }}">Contactar</a>
           </div>
         </div>
-  
-        <div class="investment-section">
-          <h3>Invertir en este proyecto</h3>
-          <div class="form-group">
-            <label for="amount">Monto a invertir ($)</label>
-            <input type="number" id="amount" [(ngModel)]="investmentAmount" 
-                  min="1" [max]="project.goal - project.collected"
-                  [disabled]="isProcessingPayment">
-          </div>
-          <button class="invest-button" (click)="invest()" [disabled]="isProcessingPayment">
-            <span *ngIf="!isProcessingPayment">Invertir ahora</span>
-            <span *ngIf="isProcessingPayment">Procesando pago...</span>
-          </button>
-          <p class="note">Serás redirigido a PayU para completar el pago de forma segura</p>
-        </div>
-  
-        <div class="rewards-section">
-          <h3>Recompensas</h3>
-          <div class="reward" *ngFor="let reward of project.rewards">
-            <h4>${{reward.minimumAmount}} o más</h4>
-            <h5>{{reward.title}}</h5>
-            <p>{{reward.description}}</p>
-          </div>
-        </div>
-  
-        <div class="creator-section">
-          <h3>Creador del proyecto</h3>
-          <div class="creator-info">
-            <img [src]="project.creator.avatar" alt="Avatar del creador" class="creator-avatar">
-            <div class="creator-details">
-              <h4>{{project.creator.name}}</h4>
-              <p>{{project.creator.bio}}</p>
-              <a href="mailto:{{project.creator.email}}">Contactar</a>
-            </div>
-          </div>
-        </div>
-  
-        <div class="supporters-section">
-          <h3>Principales aportantes</h3>
-          <div class="supporter" *ngFor="let supporter of getTopSupporters()">
-            <span class="supporter-name">{{supporter.name}}</span>
-            <span class="supporter-amount">${{supporter.amount}}</span>
-          </div>
+      </div>
+
+      <div class="supporters-section">
+        <h3>Principales aportantes</h3>
+        <div class="supporter" *ngFor="let supporter of getTopSupporters()">
+          <span class="supporter-name">{{ supporter.name }}</span>
+          <span class="supporter-amount">${{ supporter.amount }}</span>
         </div>
       </div>
     </div>
   </div>
+</div>

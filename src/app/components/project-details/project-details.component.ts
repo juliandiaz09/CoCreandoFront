@@ -22,19 +22,19 @@ export class ProjectDetailsComponent implements OnInit {
   isLoading = true;
   error: string | null = null;
   isProcessingPayment = false;
-  
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private projectService: ProjectService,
     private authService: AuthService,
     private http: HttpClient
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
       this.projectId = params.get('id') || '';
-      
+
       this.authService.currentUser$.subscribe(user => {
         this.currentUser = user;
       });
@@ -50,14 +50,14 @@ export class ProjectDetailsComponent implements OnInit {
   loadProject(projectId: string): void {
     this.isLoading = true;
     this.error = null;
-    
+
     this.projectService.getProjectById(projectId).subscribe({
       next: (project) => {
         if (!project) {
           this.router.navigate(['/dashboard'], { replaceUrl: true });
           return;
         }
-      
+
         this.project = {
           ...project,
           deadline: new Date(project.deadline),
@@ -75,7 +75,7 @@ export class ProjectDetailsComponent implements OnInit {
             date: new Date(supporter.date)
           }))
         };
-        
+
         this.isLoading = false;
       },
       error: (err) => {
@@ -91,7 +91,7 @@ export class ProjectDetailsComponent implements OnInit {
       alert('Por favor ingresa un monto válido');
       return;
     }
-    
+
     if (!this.currentUser) {
       alert('Debes iniciar sesión para invertir');
       this.router.navigate(['/login']);
@@ -180,4 +180,34 @@ export class ProjectDetailsComponent implements OnInit {
       .sort((a, b) => b.amount - a.amount)
       .slice(0, 3);
   }
+  isProjectCreator(): boolean {
+    if (!this.currentUser || !this.project) return false;
+    return this.currentUser.uid === this.project.creator?.uid ||
+      this.currentUser.id === this.project.creator?.id;
+  }
+
+  editProject(): void {
+    if (this.project?.id) {
+      this.router.navigate(['/edit-project', this.project.id]);
+    }
+  }
+
+  async deleteProject(): Promise<void> {
+    if (!this.project?.id) return;
+
+    // Confirmación antes de eliminar
+    const confirmDelete = confirm('¿Estás seguro de que quieres eliminar este proyecto? Esta acción no se puede deshacer.');
+
+    if (!confirmDelete) return;
+
+    try {
+      await this.projectService.deleteProject(this.project.id).toPromise();
+      alert('Proyecto eliminado exitosamente');
+      this.router.navigate(['/dashboard']);
+    } catch (error) {
+      console.error('Error al eliminar proyecto:', error);
+      alert('Ocurrió un error al eliminar el proyecto');
+    }
+  }
+
 }

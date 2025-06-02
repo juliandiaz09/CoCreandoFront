@@ -67,6 +67,7 @@ export class UserProfileComponent implements OnInit {
             return of({
               ...currentUser,
               role: currentUser.role || 'usuario',
+              id: currentUser.id || currentUser.uid, // Asegura tener siempre un ID
               status: currentUser.status || 'active',
               email_verified: currentUser.email_verified || 'False'
             });
@@ -114,52 +115,48 @@ export class UserProfileComponent implements OnInit {
   }
 
   async deleteAccount(): Promise<void> {
-    // Verificar proyectos primero
+    // Verificación robusta del ID de usuario
+    const userId = this.user?.id || this.user?.uid;
+
+    if (!userId) {
+      console.error('ID de usuario no disponible', this.user);
+      this.error = 'No se pudo obtener tu información de usuario. Por favor recarga la página.';
+      return;
+    }
+
+    // Resto de validaciones...
     if (this.userProjects.length > 0) {
       alert('No puedes eliminar tu cuenta porque tienes proyectos creados.');
       return;
     }
 
-    if (!confirm('¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.')) {
+    if (!confirm('¿Estás seguro de que quieres eliminar tu cuenta permanentemente?')) {
       return;
     }
 
     try {
-      // Mostrar carga
       this.isLoading = true;
       this.error = null;
 
-      // Ejecutar eliminación
+      console.log('Intentando eliminar cuenta con ID:', userId); // Log para depuración
+
       await lastValueFrom(
-        this.userService.deleteAccount(this.user.id).pipe(
-          catchError(error => {
-            console.error('Error deleting account:', error);
-            throw error;
-          })
-        )
+        this.userService.deleteAccount(userId)
       );
 
-      // Éxito - cerrar sesión y redirigir
       this.authService.logout();
       this.router.navigate(['/login'], {
         queryParams: { message: 'Tu cuenta ha sido eliminada exitosamente' }
       });
 
     } catch (error: any) {
-      console.error('Error al eliminar cuenta:', error);
-      this.error = error.message || 'Error al eliminar la cuenta. Por favor intenta nuevamente.';
-
-      // Manejo especial para token expirado
-      if (error.message.includes('Sesión expirada')) {
-        setTimeout(() => {
-          this.authService.logout();
-          this.router.navigate(['/login']);
-        }, 3000);
-      }
+      console.error('Error completo al eliminar cuenta:', error);
+      this.error = error.message || 'Ocurrió un error al eliminar la cuenta. Por favor intenta nuevamente.';
     } finally {
       this.isLoading = false;
     }
   }
+
   async changePassword(oldPassword: string, newPassword: string, confirmPassword: string): Promise<void> {
     // Resetear estados
     this.passwordChangeError = null;
@@ -217,4 +214,24 @@ export class UserProfileComponent implements OnInit {
       }
     }
   }
+
+  editProject(projectId: string): void {
+    this.router.navigate(['/edit-project', projectId]);
+  }
+
+  async deleteProject(projectId: string): Promise<void> {
+    const confirmDelete = confirm('¿Estás seguro de que quieres eliminar este proyecto? Esta acción no se puede deshacer.');
+
+    if (!confirmDelete) return;
+
+    try {
+      await lastValueFrom(this.projectService.deleteProject(projectId));
+      this.userProjects = this.userProjects.filter(p => p.id !== projectId);
+      alert('Proyecto eliminado exitosamente');
+    } catch (error) {
+      console.error('Error al eliminar proyecto:', error);
+      alert('Ocurrió un error al eliminar el proyecto');
+    }
+  }
+
 }

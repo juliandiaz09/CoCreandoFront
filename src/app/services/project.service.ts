@@ -113,11 +113,21 @@ private generateProjectId(): string {
 }
 
   deleteProject(id: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/eliminarProyecto/${id}`).pipe(
-      catchError((error) => {
-        console.error(`Error deleting project ${id}:`, error);
-        throw error;
-      })
-    );
-  }
+  const token = this.authService.getToken();
+  
+  const headers = new HttpHeaders({
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  });
+
+  return this.http.delete(`${this.apiUrl}/proyecto/eliminarProyecto/${id}`, {
+    headers,
+    withCredentials: true
+  }).pipe(
+    catchError((error) => {
+      console.error(`Error deleting project ${id}:`, error);
+      throw error;
+    })
+  );
+}
 }

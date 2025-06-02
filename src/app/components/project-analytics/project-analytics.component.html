@@ -8,17 +8,32 @@
   <div *ngIf="!error">
     <h2>Análisis del Proyecto</h2>
     <p class="project-title">{{ project.title }}</p>
-    <button *ngIf="isCreator" (click)="navigateToEdit()" class="edit-button">Editar Proyecto</button>
-    
+    <button *ngIf="isCreator" (click)="navigateToEdit()" class="edit-button">
+      Editar Proyecto
+    </button>
+
+    <div class="action-buttons">
+      <button
+        *ngIf="isCreator && project?.collected === 0"
+        (click)="deleteProject()"
+        class="delete-button"
+      >
+        Eliminar Proyecto
+      </button>
+    </div>
+
     <!-- Sección de estadísticas principales -->
     <div class="stats-grid">
       <div class="stat-card">
         <h3>Recaudado</h3>
-        <p class="stat-value">${{ analyticsData.basicStats.totalCollected | number:'1.0-0' }}</p>
-        <p class="stat-label">{{ analyticsData.basicStats.percentageFunded }}% de la meta</p>
+        <p class="stat-value">
+          ${{ analyticsData.basicStats.totalCollected | number : "1.0-0" }}
+        </p>
+        <p class="stat-label">
+          {{ analyticsData.basicStats.percentageFunded }}% de la meta
+        </p>
       </div>
-      <div class="action-buttons">
-</div>
+      <div class="action-buttons"></div>
 
       <!-- Resto de las tarjetas de estadísticas -->
       <div class="stat-card">
@@ -26,79 +41,103 @@
         <p class="stat-value">{{ analyticsData.basicStats.supportersCount }}</p>
         <p class="stat-label">personas han apoyado</p>
       </div>
-      
+
       <div class="stat-card">
         <h3>Tiempo restante</h3>
         <p class="stat-value">{{ analyticsData.basicStats.daysRemaining }}</p>
         <p class="stat-label">días para finalizar</p>
       </div>
-      
+
       <div class="stat-card">
         <h3>Recompensas</h3>
         <p class="stat-value">{{ analyticsData.basicStats.rewardsClaimed }}</p>
         <p class="stat-label">recompensas reclamadas</p>
       </div>
     </div>
-    
+
     <!-- Gráfico de progreso -->
     <div class="chart-container">
       <h3>Progreso de financiación</h3>
       <div class="progress-bar">
-        <div class="progress-fill" 
-             [style.width.%]="analyticsData.basicStats.percentageFunded"></div>
+        <div
+          class="progress-fill"
+          [style.width.%]="analyticsData.basicStats.percentageFunded"
+        ></div>
       </div>
       <p class="progress-text">
-        ${{ analyticsData.basicStats.totalCollected | number:'1.0-0' }} 
-        de ${{ project.goal | number:'1.0-0' }} 
+        ${{ analyticsData.basicStats.totalCollected | number : "1.0-0" }} de ${{
+          project.goal | number : "1.0-0"
+        }}
         ({{ analyticsData.basicStats.percentageFunded }}%)
       </p>
     </div>
-    
+
     <!-- Sección de apoyos recientes -->
     <div class="supporters-section">
       <h3>Apoyos recientes</h3>
       <div class="supporters-grid">
-        <div *ngFor="let supporter of analyticsData.supporters.slice(0, 5)" class="supporter-card">
+        <div
+          *ngFor="let supporter of analyticsData.supporters.slice(0, 5)"
+          class="supporter-card"
+        >
           <div class="supporter-avatar">{{ supporter.name.charAt(0) }}</div>
           <div class="supporter-info">
             <p class="supporter-name">{{ supporter.name }}</p>
-            <p class="supporter-amount">${{ supporter.amount | number:'1.0-0' }}</p>
+            <p class="supporter-amount">
+              ${{ supporter.amount | number : "1.0-0" }}
+            </p>
             <p class="supporter-date">{{ supporter.date }}</p>
-            <p *ngIf="supporter.reward" class="supporter-reward">{{ supporter.reward }}</p>
+            <p *ngIf="supporter.reward" class="supporter-reward">
+              {{ supporter.reward }}
+            </p>
           </div>
         </div>
       </div>
     </div>
-    
+
     <!-- Distribución de recompensas -->
     <div class="rewards-section">
       <h3>Distribución de recompensas</h3>
       <div class="rewards-grid">
-        <div *ngFor="let reward of analyticsData.rewardsDistribution" class="reward-card">
+        <div
+          *ngFor="let reward of analyticsData.rewardsDistribution"
+          class="reward-card"
+        >
           <h4>{{ reward.reward }}</h4>
           <p>{{ reward.count }} personas</p>
-          <p>Total: ${{ reward.totalAmount | number:'1.0-0' }}</p>
+          <p>Total: ${{ reward.totalAmount | number : "1.0-0" }}</p>
           <div class="reward-bar">
-            <div class="reward-fill" 
-                 [style.width.%]="(reward.count / analyticsData.basicStats.supportersCount) * 100"></div>
+            <div
+              class="reward-fill"
+              [style.width.%]="
+                (reward.count / analyticsData.basicStats.supportersCount) * 100
+              "
+            ></div>
           </div>
         </div>
       </div>
     </div>
-    
+
     <!-- Actividad reciente -->
     <div class="activity-section">
       <h3>Actividad reciente</h3>
       <div class="activity-timeline">
-        <div *ngFor="let activity of analyticsData.recentActivity.slice(0, 5)" class="activity-item">
-          <div class="activity-icon" 
-               [class.update]="activity.type === 'update'"
-               [class.support]="activity.type === 'support'">
-            {{ activity.type === 'update' ? '🔄' : '💚' }}
+        <div
+          *ngFor="let activity of analyticsData.recentActivity.slice(0, 5)"
+          class="activity-item"
+        >
+          <div
+            class="activity-icon"
+            [class.update]="activity.type === 'update'"
+            [class.support]="activity.type === 'support'"
+          >
+            {{ activity.type === "update" ? "🔄" : "💚" }}
           </div>
           <div class="activity-content">
             <p class="activity-description">{{ activity.description }}</p>
-            <p class="activity-date">{{ activity.date | date:'mediumDate' }}</p>
+            <p class="activity-date">
+              {{ activity.date | date : "mediumDate" }}
+            </p>
           </div>
         </div>
       </div>

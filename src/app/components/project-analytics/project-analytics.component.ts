@@ -5,6 +5,8 @@ import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { DecimalPipe, DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
+import { lastValueFrom } from 'rxjs'; 
+
 
 interface AnalyticsData {
   basicStats: {
@@ -66,7 +68,7 @@ export class ProjectAnalyticsComponent implements OnInit {
     private authService: AuthService,
     private decimalPipe: DecimalPipe,
     private datePipe: DatePipe
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.projectId = this.route.snapshot.paramMap.get('id') || '';
@@ -78,7 +80,7 @@ export class ProjectAnalyticsComponent implements OnInit {
 
   loadProjectData(): void {
     this.isLoading = true;
-    
+
     this.projectService.getProjectById(this.projectId).subscribe({
       next: (project) => {
         if (!project) {
@@ -86,10 +88,10 @@ export class ProjectAnalyticsComponent implements OnInit {
           this.isLoading = false;
           return;
         }
-        
+
         this.project = project;
         this.isCreator = project.creator?.email === this.currentUserEmail;
-        
+
         this.generateAnalytics(project);
       },
       error: (err) => {
@@ -104,11 +106,11 @@ export class ProjectAnalyticsComponent implements OnInit {
     // 1. Estadísticas básicas
     const totalCollected = project.collected || 0;
     const percentageFunded = Math.min(Math.round((totalCollected / project.goal) * 100), 100);
-    
+
     const deadline = new Date(project.deadline);
     const today = new Date();
     const daysRemaining = Math.max(0, Math.ceil((deadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)));
-    
+
     // 2. Datos de apoyos
     const supporters = project.supporters?.map((sup: any) => ({
       name: sup.name,
@@ -116,16 +118,16 @@ export class ProjectAnalyticsComponent implements OnInit {
       date: new Date(sup.date).toLocaleDateString(),
       reward: this.getRewardName(project.rewards, sup.amount)
     })) || [];
-    
+
     // 3. Progreso de financiación (simulado)
     const fundingProgress = this.generateFundingProgress(project);
-    
+
     // 4. Distribución de recompensas
     const rewardsDistribution = this.calculateRewardsDistribution(project);
-    
+
     // 5. Actividad reciente
     const recentActivity = this.generateRecentActivity(project);
-    
+
     this.analyticsData = {
       basicStats: {
         totalCollected,
@@ -139,13 +141,13 @@ export class ProjectAnalyticsComponent implements OnInit {
       rewardsDistribution,
       recentActivity
     };
-    
+
     this.isLoading = false;
   }
 
   navigateToEdit(): void {
-  this.router.navigate(['/project-edit', this.projectId]);
-}
+    this.router.navigate(['/project-edit', this.projectId]);
+  }
 
   private getRewardName(rewards: any[], amount: number): string {
     if (!rewards) return 'Sin recompensa';
@@ -158,38 +160,38 @@ export class ProjectAnalyticsComponent implements OnInit {
   private generateFundingProgress(project: any): any[] {
     // Simulamos datos de progreso si no existen
     if (project.fundingProgress) return project.fundingProgress;
-    
+
     const progress = [];
     const startDate = new Date(project.createdAt);
     const today = new Date();
     const totalDays = Math.ceil((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-    
+
     let currentAmount = 0;
     for (let i = 0; i <= totalDays; i++) {
       const date = new Date(startDate);
       date.setDate(startDate.getDate() + i);
-      
+
       // Simular crecimiento (podrías reemplazar con datos reales)
       currentAmount += Math.random() * (project.goal / 10);
       if (currentAmount > project.collected) currentAmount = project.collected;
-      
+
       progress.push({
         date: date.toISOString().split('T')[0],
         amount: Math.round(currentAmount)
       });
     }
-    
+
     return progress;
   }
 
   private calculateRewardsDistribution(project: any): any[] {
     if (!project.rewards || !project.supporters) return [];
-    
+
     return project.rewards.map((reward: any) => {
       const supportersForReward = project.supporters.filter(
         (sup: any) => sup.amount >= reward.minimumAmount
       );
-      
+
       return {
         reward: reward.title,
         count: supportersForReward.length,
@@ -198,32 +200,47 @@ export class ProjectAnalyticsComponent implements OnInit {
     });
   }
 
- private generateRecentActivity(project: any): ActivityItem[] {
-  const activity: ActivityItem[] = [];
-  
-  // Agregar actualizaciones del proyecto
-  if (project.updates) {
-    project.updates.forEach((update: any) => {
-      activity.push({
-        type: 'update',
-        description: update.title,
-        date: update.date
+  private generateRecentActivity(project: any): ActivityItem[] {
+    const activity: ActivityItem[] = [];
+
+    // Agregar actualizaciones del proyecto
+    if (project.updates) {
+      project.updates.forEach((update: any) => {
+        activity.push({
+          type: 'update',
+          description: update.title,
+          date: update.date
+        });
       });
-    });
-  }
-  
-  // Agregar apoyos recientes
-  if (project.supporters) {
-    project.supporters.slice(-5).forEach((sup: any) => {
-      activity.push({
-        type: 'support',
-        description: `Nuevo apoyo de ${sup.name} ($${sup.amount})`,
-        date: sup.date
+    }
+
+    // Agregar apoyos recientes
+    if (project.supporters) {
+      project.supporters.slice(-5).forEach((sup: any) => {
+        activity.push({
+          type: 'support',
+          description: `Nuevo apoyo de ${sup.name} ($${sup.amount})`,
+          date: sup.date
+        });
       });
-    });
+    }
+
+    // Ordenar por fecha (más reciente primero)
+    return activity.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }
-  
-  // Ordenar por fecha (más reciente primero)
-  return activity.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-}
+
+  async deleteProject(): Promise<void> {
+    const confirmDelete = confirm('¿Estás seguro de que quieres eliminar este proyecto? Esta acción no se puede deshacer.');
+
+    if (!confirmDelete) return;
+
+    try {
+      await lastValueFrom(this.projectService.deleteProject(this.projectId));
+      alert('Proyecto eliminado exitosamente');
+      this.router.navigate(['/user-profile']);
+    } catch (error) {
+      console.error('Error al eliminar proyecto:', error);
+      alert('Ocurrió un error al eliminar el proyecto');
+    }
+  }
 }

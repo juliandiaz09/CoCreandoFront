@@ -287,3 +287,37 @@ $shadow-color: rgba(0, 0, 0, 0.1);
     }
   }
 }
+
+.project-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  
+  button {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  
+  .button-edit {
+    background: #2196F3;
+    color: white;
+    border: none;
+    
+    &:hover {
+      background: darken(#2196F3, 10%);
+    }
+  }
+  
+  .button-danger {
+    background: #f44336;
+    color: white;
+    border: none;
+    
+    &:hover {
+      background: darken(#f44336, 10%);
+    }
+  }
+}

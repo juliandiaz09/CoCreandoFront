@@ -68,38 +68,36 @@ export class UserService {
       { withCredentials: true }
     );
   }
+  
   deleteAccount(userId: string): Observable<any> {
-    const token = this.getToken();
-
-    if (!token) {
-      return throwError(() => new Error('No authentication token available'));
-    }
-
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    });
-
-    return this.http.delete(`${this.apiUrl}/usuario/eliminarUsuario/${userId}`, {
-      headers,
-      withCredentials: true
-    }).pipe(
-      catchError((error: HttpErrorResponse) => {
-        console.error('Error deleting account:', error);
-        let errorMessage = 'Error al eliminar la cuenta';
-
-        if (error.status === 401) {
-          errorMessage = 'Sesión expirada. Por favor inicia sesión nuevamente';
-        } else if (error.status === 403) {
-          errorMessage = 'No tienes permisos para realizar esta acción';
-        } else if (error.status === 404) {
-          errorMessage = 'Usuario no encontrado';
-        }
-
-        return throwError(() => new Error(errorMessage));
-      })
-    );
+  if (!userId) {
+    return throwError(() => new Error('ID de usuario no proporcionado'));
   }
+
+  const token = this.getToken();
+  if (!token) {
+    return throwError(() => new Error('No hay token de autenticación'));
+  }
+
+  const headers = new HttpHeaders({
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json'
+  });
+
+  return this.http.delete(`${this.apiUrl}/usuario/eliminarUsuario/${userId}`, { 
+    headers,
+    withCredentials: true 
+  }).pipe(
+    catchError((error: HttpErrorResponse) => {
+      let errorMessage = 'Error al eliminar la cuenta';
+      if (error.status === 403) {
+        errorMessage = 'No tienes permisos para eliminar esta cuenta';
+      }
+      return throwError(() => new Error(errorMessage));
+    })
+  );
+}
+
 
   private getToken(): string | null {
     const userData = localStorage.getItem('custom_user');

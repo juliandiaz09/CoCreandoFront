@@ -273,3 +273,41 @@ $shadow-color: rgba(0, 0, 0, 0.1);
     }
   }
 }
+
+.creator-actions {
+  margin-top: 1rem;
+  display: flex;
+  gap: 1rem;
+
+  button {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+    }
+  }
+
+  .edit-button {
+    background-color: $accent-color;
+    color: $white;
+    border: none;
+
+    &:hover {
+      background-color: darken($accent-color, 10%);
+    }
+  }
+
+  .delete-button {
+    background-color: #f44336;
+    color: $white;
+    border: none;
+
+    &:hover {
+      background-color: darken(#f44336, 10%);
+    }
+  }
+}

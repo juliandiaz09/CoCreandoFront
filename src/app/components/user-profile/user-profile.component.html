@@ -144,6 +144,13 @@
             >
               Ver Análisis
             </button>
+            <button
+              *ngIf="project.collected === 0"
+              class="button-danger"
+              (click)="deleteProject(project.id)"
+            >
+              Eliminar
+            </button>
           </div>
         </div>
       </div>
