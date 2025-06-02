@@ -253,10 +253,14 @@
 }
 .project-title{
   text-align: center;
-  background-color: #d2eed3;
   color: #3e8e41;
   padding: 0.75rem 1.5rem;
   border-radius: 9px;
-  font-size: 3rem;
-  text-transform: uppercase
+  font-size: clamp(1.5rem, 5vw, 3rem); /* Tamaño adaptable entre 1.5rem y 3rem */
+  text-transform: uppercase;
+  overflow-wrap: break-word; /* Rompe palabras largas */
+  word-break: break-word; /* Asegura el ajuste de palabras */
+  max-width: 100%; /* Evita que se salga del contenedor */
+  margin: 0 auto; /* Centra el título */
+  box-sizing: border-box; /* Incluye el padding en el ancho total */
 }
