@@ -13,6 +13,13 @@ $shadow-color: rgba(0, 0, 0, 0.1);
   flex-direction: column;
   min-height: 100vh;
 }
+.nav-links a,
+.admin-link,
+.logout-link,
+.notification-icon {
+  cursor: pointer;
+}
+
 
 // Barra de navegación mejorada
 .navbar {

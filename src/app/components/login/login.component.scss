@@ -16,6 +16,9 @@ $box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
 @mixin transition($property: all, $duration: 0.3s, $easing: ease-in-out) {
   transition: $property $duration $easing;
 }
+.login-form a {
+  cursor: pointer;
+}
 
 .login-wrapper {
   display: flex;

@@ -202,7 +202,7 @@ export class UserProfileComponent implements OnInit {
 
     } catch (error: any) {
       console.error('Error en changePassword:', error);
-      this.passwordChangeError = error.message || 'Revisa los campos ingresados o no es la contraseña actual o la contraseña nueba debe tener: -una letra -un numero - un caracter';
+      this.passwordChangeError = error.message || 'Revisa los campos ingresados o no es la contraseña actual o la contraseña nueva debe tener: -una letra -un numero - un caracter';
 
       // Manejo específico para sesión antigua
       if (error.message.includes('antigua')) {

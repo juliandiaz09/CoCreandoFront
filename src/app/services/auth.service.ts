@@ -23,25 +23,30 @@ export class AuthService {
     this.initializeAuthState();
   }
 
-  private initializeAuthState() {
-    if (this.initialized) return;
-    this.initialized = true;
-
-    const auth = getAuth();
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        await user.reload();
-        if (user.emailVerified) {
-          await this.loadUserData(user);
-        } else {
-          this.handleUnverifiedUser();
-        }
-      } else {
-        this.handleNoUser();
-      }
-    });
+private initializeAuthState() {
+  if (this.initialized) return;
+  this.initialized = true;
+  const storedUser = localStorage.getItem('custom_user');
+  if (storedUser) {
+    const parsedUser = JSON.parse(storedUser);
+    this.currentUser.next(parsedUser);
+    this.loggedIn.next(true);
   }
 
+  const auth = getAuth();
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      await user.reload();
+      if (user.emailVerified) {
+        await this.loadUserData(user);
+      } else {
+        this.handleUnverifiedUser();
+      }
+    } else {
+      this.handleNoUser();
+    }
+  });
+}
   private async loadUserData(user: any) {
     try {
       const db = getFirestore();
