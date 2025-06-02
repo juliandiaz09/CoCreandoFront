@@ -68,35 +68,38 @@ export class UserService {
       { withCredentials: true }
     );
   }
-  
+
+  // En user.service.ts, modifica el método deleteAccount:
   deleteAccount(userId: string): Observable<any> {
-  if (!userId) {
-    return throwError(() => new Error('ID de usuario no proporcionado'));
+    if (!userId) {
+      return throwError(() => new Error('ID de usuario no proporcionado'));
+    }
+
+    const token = this.getToken();
+    if (!token) {
+      return throwError(() => new Error('No hay token de autenticación'));
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+
+    return this.http.delete(`${this.apiUrl}/usuario/eliminarUsuario/${userId}`, {
+      headers,
+      withCredentials: true
+    }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        let errorMessage = 'Error al eliminar la cuenta';
+        if (error.status === 403) {
+          errorMessage = 'No tienes permisos para eliminar esta cuenta';
+        } else if (error.status === 404) {
+          errorMessage = 'Usuario no encontrado';
+        }
+        return throwError(() => new Error(errorMessage));
+      })
+    );
   }
-
-  const token = this.getToken();
-  if (!token) {
-    return throwError(() => new Error('No hay token de autenticación'));
-  }
-
-  const headers = new HttpHeaders({
-    'Authorization': `Bearer ${token}`,
-    'Content-Type': 'application/json'
-  });
-
-  return this.http.delete(`${this.apiUrl}/usuario/eliminarUsuario/${userId}`, { 
-    headers,
-    withCredentials: true 
-  }).pipe(
-    catchError((error: HttpErrorResponse) => {
-      let errorMessage = 'Error al eliminar la cuenta';
-      if (error.status === 403) {
-        errorMessage = 'No tienes permisos para eliminar esta cuenta';
-      }
-      return throwError(() => new Error(errorMessage));
-    })
-  );
-}
 
 
   private getToken(): string | null {

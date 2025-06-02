@@ -115,46 +115,48 @@ export class UserProfileComponent implements OnInit {
   }
 
   async deleteAccount(): Promise<void> {
-    // Verificación robusta del ID de usuario
     const userId = this.user?.id || this.user?.uid;
-
+    
     if (!userId) {
-      console.error('ID de usuario no disponible', this.user);
-      this.error = 'No se pudo obtener tu información de usuario. Por favor recarga la página.';
-      return;
+        this.error = 'No se pudo obtener tu información de usuario. Por favor recarga la página.';
+        return;
     }
 
-    // Resto de validaciones...
     if (this.userProjects.length > 0) {
-      alert('No puedes eliminar tu cuenta porque tienes proyectos creados.');
-      return;
+        alert('No puedes eliminar tu cuenta porque tienes proyectos creados.');
+        return;
     }
 
     if (!confirm('¿Estás seguro de que quieres eliminar tu cuenta permanentemente?')) {
-      return;
+        return;
     }
 
     try {
-      this.isLoading = true;
-      this.error = null;
+        this.isLoading = true;
+        this.error = null;
 
-
-      await lastValueFrom(
-        this.userService.deleteAccount(userId)
-      );
-
-      this.authService.logout();
-      this.router.navigate(['/login'], {
-        queryParams: { message: 'Tu cuenta ha sido eliminada exitosamente' }
-      });
+        await lastValueFrom(this.userService.deleteAccount(userId));
+        
+        this.authService.logout();
+        this.router.navigate(['/login'], {
+            queryParams: { message: 'Tu cuenta ha sido eliminada exitosamente' }
+        });
 
     } catch (error: any) {
-      console.error('Error completo al eliminar cuenta:', error);
-      this.error = error.message || 'Ocurrió un error al eliminar la cuenta. Por favor intenta nuevamente.';
+        console.error('Error al eliminar cuenta:', error);
+        this.error = error.message || 'Ocurrió un error al eliminar la cuenta. Por favor intenta nuevamente.';
+        
+        // Si es error de permisos, redirigir
+        if (error.message.includes('No tienes permisos')) {
+            setTimeout(() => {
+                this.authService.logout();
+                this.router.navigate(['/login']);
+            }, 3000);
+        }
     } finally {
-      this.isLoading = false;
+        this.isLoading = false;
     }
-  }
+}
 
   async changePassword(oldPassword: string, newPassword: string, confirmPassword: string): Promise<void> {
     // Resetear estados
