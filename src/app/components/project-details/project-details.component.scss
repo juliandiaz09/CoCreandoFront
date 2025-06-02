@@ -12,6 +12,8 @@ $shadow-color: rgba(0, 0, 0, 0.1);
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
+  overflow-x: hidden; // Esto previene el scroll horizontal no deseado
+  word-wrap: break-word; // Esto fuerza el salto de palabras largas
 
   .project-header {
     margin-bottom: 2rem;
@@ -249,5 +251,25 @@ $shadow-color: rgba(0, 0, 0, 0.1);
 
   &:hover {
     background-color: #3e8e41;
+  }
+}
+.main-content {
+  flex: 2;
+  min-width: 0; // Esto es crucial para que flexbox permita el wrapping
+  
+  h2 {
+    color: $accent-color;
+    margin: 1.5rem 0 1rem;
+    border-bottom: 2px solid $secondary-color;
+    padding-bottom: 0.5rem;
+  }
+
+  .project-description,
+  .project-risks,
+  .project-updates {
+    p {
+      white-space: normal; // Asegura que el texto se envuelva
+      overflow-wrap: break-word; // Rompe palabras largas si es necesario
+    }
   }
 }
