@@ -16,6 +16,7 @@ interface CurrentUser {
   email: string;
   bio?: string;
   avatar?: string;
+  uid: string;
   [key: string]: any; // Para otras propiedades que pueda tener
 }
 
@@ -149,6 +150,7 @@ export class ProjectCreationComponent {
         name: currentUser.name,
         email: currentUser.email,
         bio: currentUser.bio || '',
+        uid: currentUser.uid,
         avatar: getRandomProjectAvatar()
       },
       collected: 0,

@@ -64,15 +64,15 @@ export class ProjectService {
   projectData.supporters = [];
 
     // 👇 Obtener datos del usuario actual desde AuthService
-  const currentUserString = localStorage.getItem("custom_user");//this.authService.getCurrentUserValue();
-  if (currentUserString) {
-    const currentUser = JSON.parse(currentUserString); // ✅ Convertir a objeto
-    projectData.creator = {
-      uid: currentUser.uid,
-      name: currentUser.name,
-      email: currentUser.email
-    };
-  }
+  // const currentUserString = localStorage.getItem("custom_user");//this.authService.getCurrentUserValue();
+  // if (currentUserString) {
+  //   const currentUser = JSON.parse(currentUserString); // ✅ Convertir a objeto
+  //   projectData.creator = {
+  //     uid: currentUser.uid,
+  //     name: currentUser.name,
+  //     email: currentUser.email
+  //   };
+  // }
 
 
   const token = this.authService.getToken(); // Ahora debería funcionar
