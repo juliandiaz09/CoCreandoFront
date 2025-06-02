@@ -138,7 +138,6 @@ export class UserProfileComponent implements OnInit {
       this.isLoading = true;
       this.error = null;
 
-      console.log('Intentando eliminar cuenta con ID:', userId); // Log para depuración
 
       await lastValueFrom(
         this.userService.deleteAccount(userId)

@@ -15,7 +15,6 @@ async function uploadProjects() {
     const batch = db.batch();
     const proyectosRef = db.collection('proyectos');
 
-    console.log(`Cargando ${proyectos.length} proyectos a Firestore...`);
 
     proyectos.forEach(proyecto => {
       // Asegúrate que el ID sea string (Firestore usa strings como IDs)
@@ -39,7 +38,6 @@ async function uploadProjects() {
     });
 
     await batch.commit();
-    console.log('✅ Todos los proyectos han sido cargados exitosamente a Firestore');
   } catch (error) {
     console.error('❌ Error al cargar proyectos:', error);
   }

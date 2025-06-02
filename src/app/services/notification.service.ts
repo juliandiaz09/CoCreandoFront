@@ -34,23 +34,16 @@ constructor() {
   this.cleanupSocketListeners();
   this.setupBaseListeners();
 
-  console.log(this.userId)
   
   if (this.userId) {
     this.joinUserRoom();
-    console.log("Hola")
 
-    // En el constructor del servicio:
     this.socket.on('confirmacion_join', (data: {room: string, socket_id: string}) => {
-        console.log('🔔 Unido a la sala:', data.room, 
-                    '| Socket ID:', data.socket_id,
-                    '| Mi user_id:', this.userId);
+        
     });
 
-        console.log("Hola2")
 
     this.socket.on('connect', () => {
-        console.log('🟢 ID de conexión actual:', this.socket.id);
     });
 
     this.socket.on('join_error', (error: string) => {
@@ -77,7 +70,6 @@ constructor() {
 
     // Listener para reconexión
     this.socket.on('connect', () => {
-      console.log('Conectado al servidor Socket.IO');
       if (this.userId) {
         this.joinUserRoom();
       }
@@ -153,6 +145,5 @@ constructor() {
     // Limpiar todos los listeners y desconectar
     this.cleanupSocketListeners();
     this.socket.disconnect();
-    console.log('Socket.IO desconectado');
   }
 }
