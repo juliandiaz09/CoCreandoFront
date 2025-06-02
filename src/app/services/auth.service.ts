@@ -292,7 +292,7 @@ private initializeAuthState() {
       }),
       catchError((error) => {
         console.error('Error changing password:', error);
-        let errorMessage = 'Revisa los campos ingresados o no es la contraseña actual o la contraseña nueba debe tener: -una letra -un numero - un caracter';
+        let errorMessage = 'Revisa los campos ingresados o no es la contraseña actual o la contraseña nueva debe tener: -una letra -un numero - un caracter';
 
         if (error.code === 'auth/wrong-password') {
           errorMessage = 'La contraseña actual es incorrecta';
