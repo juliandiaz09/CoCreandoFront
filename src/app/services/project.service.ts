@@ -21,10 +21,24 @@ export class ProjectService {
     private authService: AuthService 
   ) {}
 
-  getProjects(): Observable<Project[]> {
+getProjects(): Observable<Project[]> {
+  // Obtener el usuario actual desde localStorage
+  const userJson = localStorage.getItem('custom_user');
+  const currentUser = userJson ? JSON.parse(userJson) : null;
+  const isAdmin = currentUser?.role === 'admin';
+
   return this.http.get<Project[]>(`${this.apiUrl}/proyecto/listarProyectos`, {
     withCredentials: true
   }).pipe(
+    // Filtrar proyectos si no es admin
+    switchMap((projects: Project[]) => {
+      if (isAdmin) {
+        return of(projects);
+      } else {
+        const filtered = projects.filter(p => p.status === 'approved');
+        return of(filtered);
+      }
+    }),
     catchError((error) => {
       console.error('Error fetching projects from API:', error);
       return of([]);
