@@ -9,6 +9,7 @@ export interface Project {
     deadline: Date | string;
     location?: string;
     creator?: {
+      id: string;
       uid: string;
       name: string;
       email: string;

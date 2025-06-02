@@ -97,8 +97,8 @@ export class ProjectAnalyticsComponent implements OnInit {
         }
 
         this.project = project;
-        this.isCreator = project.creator?.uid === this.currentUserId;
-
+        this.isCreator = project.creator?.email === this.currentUserEmail;
+        
         this.generateAnalytics(project);
       },
       error: (err) => {
