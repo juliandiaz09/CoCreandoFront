@@ -45,7 +45,7 @@ export class AppComponent implements OnInit, OnDestroy {
       if (isAuth) {
         const userId = this.authService.getCurrentUserValue()?.uid;
         if (userId) {
-          this.notificationService.cargarNotificaciones(userId);
+          this.notificationService.cargarNotificaciones();
         }
       } else {
         this.notifications = [];
@@ -59,13 +59,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.authSub.unsubscribe();
   }
 
-  @HostListener('document:click', ['$event'])
-  handleDocumentClick(event: MouseEvent) {
-    const target = event.target as HTMLElement;
-    if (!target.closest('.notification-wrapper') && this.showNotifications) {
-      this.showNotifications = false;
-    }
-  }
 
   navigateTo(route: string) {
     this.router.navigate([route]);
@@ -88,7 +81,7 @@ export class AppComponent implements OnInit, OnDestroy {
   markAllAsRead() {
     const userId = this.authService.getCurrentUserValue()?.uid;
     if (userId) {
-      this.notificationService.marcarComoLeidas(userId);
+      this.notificationService.marcarComoLeidas();
     }
   }
 
@@ -100,7 +93,7 @@ export class AppComponent implements OnInit, OnDestroy {
     if (!notification.read) {
       const userId = this.authService.getCurrentUserValue()?.uid;
       if (userId) {
-        this.notificationService.marcarComoLeida(userId, notification.id);
+        this.notificationService.marcarComoLeida(notification.id);
       }
     }
     

@@ -62,6 +62,7 @@ export class AuthService {
       this.loggedIn.next(true);
       this.currentUser.next(fullUserData);
       localStorage.setItem('custom_user', JSON.stringify(fullUserData));
+      localStorage.setItem('user_id', fullUserData.uid);
       localStorage.setItem('token', fullUserData.token);
     } catch (error) {
       console.error('Error loading user data:', error);
@@ -127,6 +128,7 @@ export class AuthService {
       this.loggedIn.next(true);
       this.currentUser.next(fullUserData);
       localStorage.setItem('custom_user', JSON.stringify(fullUserData));
+      localStorage.setItem('user_id', fullUserData.uid);
       localStorage.setItem('token', fullUserData.token);
 
       return true;
@@ -185,49 +187,6 @@ export class AuthService {
     return user?.role?.toLowerCase() === 'admin';
   }
 
-
-  /*
-  async login(email: string, password: string): Promise<boolean> {
-    try {
-      const response: any = await this.http.post('http://127.0.0.1:5000/login', {
-        email,
-        password
-      }).toPromise();
-
-      if (response && response.success) {
-        const userData = {
-          email: response.user?.email || email,
-          name: response.user?.name || email.split('@')[0],
-          id: response.user?.uid || response.user?.id || '',
-          uid: response.user?.uid || response.user?.id || '',
-          token: response.token,
-          role: response.user?.role || 'usuario',
-          status: response.user?.status || 'active'
-        };
-
-        this.loggedIn.next(true);
-        this.currentUser.next(userData);
-        console.log(userData.id);
-        localStorage.setItem('user_id', userData.id);
-        localStorage.setItem('custom_user', JSON.stringify(userData));
-        localStorage.setItem('token', response.token);
-        return true;
-      }
-      return false;
-    } catch (error: any) {
-      console.error('Login error:', error);
-
-      // Manejo específico de errores
-      if (error.error) {
-        throw {
-          code: error.error.code || 'unknown_error',
-          message: error.error.message || 'Error desconocido'
-        };
-      }
-      throw error;
-    }
-  }
-*/
 
   async sendPasswordResetEmail(email: string): Promise<void> {
     try {

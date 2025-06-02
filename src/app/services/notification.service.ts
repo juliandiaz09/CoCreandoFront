@@ -1,7 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import { BehaviorSubject } from 'rxjs';
-import { environment } from '../environments/environment';
 
 export interface Notificacion {
   id: string;
@@ -9,52 +8,122 @@ export interface Notificacion {
   message: string;
   type: string;
   timestamp: string;
-  date: Date;        // Cambiado a obligatorio
+  date: Date;
   read: boolean;
-  link?: string;     // Para navegación
+  link?: string;
+  user_id: string;
 }
 
 @Injectable({
   providedIn: 'root'
 })
-export class NotificationService {
+export class NotificationService implements OnDestroy {
   private socket: Socket;
   private notificationsSubject = new BehaviorSubject<Notificacion[]>([]);
   public notifications$ = this.notificationsSubject.asObservable();
+  private userId: string | null = null;
 
-  constructor() {
-    this.socket = io("https://cocreandoback.onrender.com"); // Asegúrate de definir esto en environment.ts
+constructor() {
+  this.userId = localStorage.getItem('user_id');
+  this.socket = io("https://cocreandoback.onrender.com", {
+    transports: ['websocket'],
+    autoConnect: true,
+    reconnectionAttempts: 3
+  });
+  
+  this.cleanupSocketListeners();
+  this.setupBaseListeners();
 
-    const userId = localStorage.getItem('user_id');
-    if (userId) {
-      this.socket.emit('join', { user_id: userId });
-      this.cargarNotificaciones(userId); // Cambio de nombre para consistencia
-    }
+  console.log(this.userId)
+  
+  if (this.userId) {
+    this.joinUserRoom();
+    console.log("Hola")
 
+    // En el constructor del servicio:
+    this.socket.on('confirmacion_join', (data: {room: string, socket_id: string}) => {
+        console.log('🔔 Unido a la sala:', data.room, 
+                    '| Socket ID:', data.socket_id,
+                    '| Mi user_id:', this.userId);
+    });
+
+        console.log("Hola2")
+
+    this.socket.on('connect', () => {
+        console.log('🟢 ID de conexión actual:', this.socket.id);
+    });
+
+    this.socket.on('join_error', (error: string) => {
+        console.error('❌ Error al unirse a la sala:', error);
+    });
+    this.cargarNotificaciones();
+  }
+}
+
+
+  private cleanupSocketListeners(): void {
+    // Eliminar todos los listeners existentes
+    this.socket.off('connect');
+    this.socket.off('nueva_notificacion');
+    this.socket.off('lista_notificaciones');
+    this.socket.off('notificaciones_actualizadas');
+  }
+
+  private setupBaseListeners(): void {
+    // Listener para nuevas notificaciones
     this.socket.on('nueva_notificacion', (notif: Notificacion) => {
-      const notificationWithDate = {
-        ...notif,
-        date: notif.date ? new Date(notif.date) : new Date(notif.timestamp)
-      };
-      const current = this.notificationsSubject.value;
-      this.notificationsSubject.next([notificationWithDate, ...current]);
+      this.handleNewNotification(notif);
+    });
+
+    // Listener para reconexión
+    this.socket.on('connect', () => {
+      console.log('Conectado al servidor Socket.IO');
+      if (this.userId) {
+        this.joinUserRoom();
+      }
     });
   }
 
-  cargarNotificaciones(userId: string) {
-    this.socket.emit('obtener_notificaciones', { user_id: userId });
+  private joinUserRoom(): void {
+    this.socket.emit('join', { user_id: this.userId });
+  }
+
+  private handleNewNotification(notif: Notificacion): void {
+    const notificationWithDate = {
+      ...notif,
+      date: notif.date ? new Date(notif.date) : new Date(notif.timestamp)
+    };
+    const current = this.notificationsSubject.value;
+    this.notificationsSubject.next([notificationWithDate, ...current]);
+  }
+
+  cargarNotificaciones(): void {
+    if (!this.userId) return;
+
+    // Limpiar listener antiguo para evitar duplicados
+    this.socket.off('lista_notificaciones');
+    
+    this.socket.emit('obtener_notificaciones', { user_id: this.userId });
 
     this.socket.on('lista_notificaciones', (notificaciones: Notificacion[]) => {
-      const notifsWithDates = notificaciones.map(notif => ({
-        ...notif,
-        date: notif.date ? new Date(notif.date) : new Date(notif.timestamp)
-      }));
+      const notifsWithDates = notificaciones
+        .filter(notif => notif.user_id === this.userId) // Filtro por user_id
+        .map(notif => ({
+          ...notif,
+          date: notif.date ? new Date(notif.date) : new Date(notif.timestamp)
+        }));
+
       this.notificationsSubject.next(notifsWithDates);
-    });
+    });
   }
 
-  marcarComoLeidas(userId: string) {
-    this.socket.emit('marcar_como_leidas', { user_id: userId });
+  marcarComoLeidas(): void {
+    if (!this.userId) return;
+
+    // Limpiar listener antiguo
+    this.socket.off('notificaciones_actualizadas');
+    
+    this.socket.emit('marcar_como_leidas', { user_id: this.userId });
 
     this.socket.on('notificaciones_actualizadas', (actualizadas: Notificacion[]) => {
       const nuevas = actualizadas.map(notif => ({
@@ -66,9 +135,11 @@ export class NotificationService {
     });
   }
 
-  marcarComoLeida(userId: string, notificationId: string) {
+  marcarComoLeida(notificationId: string): void {
+    if (!this.userId) return;
+
     this.socket.emit('marcar_como_leida', { 
-      user_id: userId, 
+      user_id: this.userId, 
       notification_id: notificationId 
     });
 
@@ -76,5 +147,12 @@ export class NotificationService {
       notif.id === notificationId ? { ...notif, read: true } : notif
     );
     this.notificationsSubject.next(current);
+  }
+
+  ngOnDestroy(): void {
+    // Limpiar todos los listeners y desconectar
+    this.cleanupSocketListeners();
+    this.socket.disconnect();
+    console.log('Socket.IO desconectado');
   }
 }

@@ -64,12 +64,15 @@ export class ProjectService {
   projectData.supporters = [];
 
     // 👇 Obtener datos del usuario actual desde AuthService
-  const currentUser = this.authService.getCurrentUserValue();
-  if (currentUser) {
+  const currentUserString = localStorage.getItem("custom_user");//this.authService.getCurrentUserValue();
+  if (currentUserString) {
+    const currentUser = JSON.parse(currentUserString); // ✅ Convertir a objeto
+    console.log("Soy don putas", currentUser)
     projectData.ownerId = currentUser.uid;
     projectData.ownerName = currentUser.name;
     projectData.ownerEmail = currentUser.email;
   }
+
 
   const token = this.authService.getToken(); // Ahora debería funcionar
     
