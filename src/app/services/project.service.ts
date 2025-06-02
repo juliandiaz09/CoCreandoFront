@@ -67,10 +67,11 @@ export class ProjectService {
   const currentUserString = localStorage.getItem("custom_user");//this.authService.getCurrentUserValue();
   if (currentUserString) {
     const currentUser = JSON.parse(currentUserString); // ✅ Convertir a objeto
-    console.log("Soy don putas", currentUser)
-    projectData.ownerId = currentUser.uid;
-    projectData.ownerName = currentUser.name;
-    projectData.ownerEmail = currentUser.email;
+    projectData.creator = {
+      uid: currentUser.uid,
+      name: currentUser.name,
+      email: currentUser.email
+    };
   }
 
 
