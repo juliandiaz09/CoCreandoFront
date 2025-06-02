@@ -60,6 +60,7 @@ export class ProjectAnalyticsComponent implements OnInit {
   error: string | null = null;
   currentUserEmail: string = '';
   isCreator: boolean = false;
+  currentUserId: string = '';  // <-- Añade esta línea
 
   constructor(
     private route: ActivatedRoute,
@@ -71,11 +72,17 @@ export class ProjectAnalyticsComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+
+          // Obtener el UID del usuario desde el localStorage
+    const currentUser = JSON.parse(localStorage.getItem('current_user') || '{}');
+    this.currentUserId = currentUser?.uid || '';  
     this.projectId = this.route.snapshot.paramMap.get('id') || '';
     this.authService.currentUser$.subscribe(user => {
       this.currentUserEmail = user?.email || '';
       this.loadProjectData();
     });
+
+
   }
 
   loadProjectData(): void {
@@ -90,7 +97,7 @@ export class ProjectAnalyticsComponent implements OnInit {
         }
 
         this.project = project;
-        this.isCreator = project.creator?.email === this.currentUserEmail;
+        this.isCreator = project.creator?.uid === this.currentUserId;
 
         this.generateAnalytics(project);
       },
